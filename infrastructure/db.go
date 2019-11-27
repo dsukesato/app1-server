@@ -17,19 +17,19 @@ type DBConn struct {
 
 func Init() database.DBConn {
 	// Cloud SQL環境での開発
-		var (
-			connectionName = mustGetenv("CLOUDSQL_CONNECTION_NAME")
-			user           = mustGetenv("CLOUDSQL_USER")
-			dbName         = os.Getenv("CLOUDSQL_DATABASE_NAME") // NOTE: dbName may be empty
-			password       = os.Getenv("CLOUDSQL_PASSWORD")      // NOTE: password may be empty
-			socket         = os.Getenv("CLOUDSQL_SOCKET_PREFIX")
-		)
+	var (
+		connectionName = mustGetenv("CLOUDSQL_CONNECTION_NAME")
+		user           = mustGetenv("CLOUDSQL_USER")
+		dbName         = os.Getenv("CLOUDSQL_DATABASE_NAME") // NOTE: dbName may be empty
+		password       = os.Getenv("CLOUDSQL_PASSWORD")      // NOTE: password may be empty
+		socket         = os.Getenv("CLOUDSQL_SOCKET_PREFIX")
+	)
 
-		if socket == "" {
-			socket = "/cloudsql"
-		}
+	if socket == "" {
+		socket = "/cloudsql"
+	}
 
-		dbURI := fmt.Sprintf("%s:%s@unix(%s/%s)/%s?parseTime=true", user, password, socket, connectionName, dbName)
+	dbURI := fmt.Sprintf("%s:%s@unix(%s/%s)/%s?parseTime=true", user, password, socket, connectionName, dbName)
 
 	// ローカル環境での開発
 	//var user = "root"
