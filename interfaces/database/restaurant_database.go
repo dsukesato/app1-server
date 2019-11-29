@@ -11,7 +11,7 @@ type RestaurantsRepository struct {
 	DBConn
 }
 
-func (repo *RestaurantsRepository) GetSelect(ctx context.Context, identifier int) (restaurant model.Restaurant, err error) {
+func (repo *RestaurantsRepository) GetSelectById(ctx context.Context, identifier int) (restaurant model.Restaurant, err error) {
 	row, err := repo.QueryContext(ctx, "select * from restaurant where id = ?", identifier)
 	if err != nil {
 		log.Printf("Could not scan result with GetSelect: %v", err)

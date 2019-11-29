@@ -22,13 +22,14 @@ func (repo *RecognizeRepository) GetSelect(ctx context.Context, identifier int) 
 	var (
 		id           int
 		restaurantId int
+		userId        int
 		createdAt    sql.NullTime
 		updatedAt    sql.NullTime
 		deletedAt    sql.NullTime
 	)
 
 	row.Next()
-	if err = row.Scan(&id, &restaurantId, &createdAt, &updatedAt, &deletedAt);
+	if err = row.Scan(&id, &restaurantId, &userId, &createdAt, &updatedAt, &deletedAt);
 		err != nil {
 		log.Printf("row.Scan()でerror: %v\n", err)
 		return
@@ -37,6 +38,7 @@ func (repo *RecognizeRepository) GetSelect(ctx context.Context, identifier int) 
 	recognize = model.Recognize {
 		Id:            id,
 		RestaurantId:  restaurantId,
+		UserId:        userId,
 		CreatedAt:     createdAt,
 		UpdatedAt:     updatedAt,
 		DeletedAt:     deletedAt,
@@ -57,11 +59,12 @@ func (repo *RecognizeRepository) GetAll(ctx context.Context) (rec model.Rec, err
 		var (
 			id            int
 			restaurantId  int
+			userId        int
 			createdAt     sql.NullTime
 			updatedAt     sql.NullTime
 			deletedAt     sql.NullTime
 		)
-		if err := rows.Scan(&id, &restaurantId, &createdAt, &updatedAt, &deletedAt);
+		if err := rows.Scan(&id, &restaurantId, &userId, &createdAt, &updatedAt, &deletedAt);
 			err != nil {
 			log.Printf("row.Scan()でerror: %v\n", err)
 			continue
@@ -69,6 +72,7 @@ func (repo *RecognizeRepository) GetAll(ctx context.Context) (rec model.Rec, err
 		recognize := model.Recognize {
 			Id:            id,
 			RestaurantId:  restaurantId,
+			UserId:        userId,
 			CreatedAt:     createdAt,
 			UpdatedAt:     updatedAt,
 			DeletedAt:     deletedAt,
@@ -80,13 +84,13 @@ func (repo *RecognizeRepository) GetAll(ctx context.Context) (rec model.Rec, err
 
 func (repo *RecognizeRepository) Store(ctx context.Context, reRegistry model.PostRecognizeRequest) (id int, err error) {
 	result, err := repo.ExecContext(ctx,
-		"insert into pbl_app1.recognize (restaurant_id, created_at) values (?, now())",
-		reRegistry.RestaurantId)
+		"insert into pbl_app1.recognize (restaurant_id, user_id, created_at) values (?, ?, now())",
+		reRegistry.RestaurantId, reRegistry.UserId)
 	if err != nil {
 		return
 	}
-	log.Printf("restaurant_id: %d\n",
-		reRegistry.RestaurantId)
+	log.Printf("restaurant_id: %d, user_id: %d\n",
+		reRegistry.RestaurantId, reRegistry.UserId)
 
 	id64, err := result.LastInsertId()
 	if err != nil {

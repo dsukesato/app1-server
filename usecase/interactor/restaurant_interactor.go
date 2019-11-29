@@ -11,7 +11,7 @@ type RestaurantsInteractor struct {
 }
 
 func (i *RestaurantsInteractor) RestaurantById(ctx context.Context, identifier int) (restaurant model.Restaurant, err error) {
-	restaurant, err = i.RestaurantsRepository.GetSelect(ctx, identifier)
+	restaurant, err = i.RestaurantsRepository.GetSelectById(ctx, identifier)
 
 	return
 }
@@ -26,7 +26,7 @@ func (i *RestaurantsInteractor) RestaurantsAll(ctx context.Context) (restaurants
 func (i *RestaurantsInteractor) Add(ctx context.Context, rRequest model.PostRestaurantRequest) (rRegistry model.Restaurant, err error) {
 	id, err := i.RestaurantsRepository.Store(ctx, rRequest)
 
-	rRegistry, err = i.RestaurantsRepository.GetSelect(ctx, id)
+	rRegistry, err = i.RestaurantsRepository.GetSelectById(ctx, id)
 
 	return
 }

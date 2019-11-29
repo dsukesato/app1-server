@@ -121,6 +121,7 @@ func (c *RecognizeController) RecognizeSendHandler(w http.ResponseWriter, r *htt
 
 	request := model.PostRecognizeRequest{}
 	request.RestaurantId = jsonBody.RestaurantId
+	request.UserId = jsonBody.UserId
 
 	recognize, err := c.Interactor.Add(ctx, request)
 
