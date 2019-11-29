@@ -17,26 +17,26 @@ type DBConn struct {
 
 func Init() database.DBConn {
 	// Cloud SQL環境での開発
-	//var (
-	//	connectionName = mustGetenv("CLOUDSQL_CONNECTION_NAME")
-	//	user           = mustGetenv("CLOUDSQL_USER")
-	//	dbName         = os.Getenv("CLOUDSQL_DATABASE_NAME") // NOTE: dbName may be empty
-	//	password       = os.Getenv("CLOUDSQL_PASSWORD")      // NOTE: password may be empty
-	//	socket         = os.Getenv("CLOUDSQL_SOCKET_PREFIX")
-	//)
-	//
-	//if socket == "" {
-	//	socket = "/cloudsql"
-	//}
-	//
-	//dbURI := fmt.Sprintf("%s:%s@unix(%s/%s)/%s?parseTime=true", user, password, socket, connectionName, dbName)
+	var (
+		connectionName = mustGetenv("CLOUDSQL_CONNECTION_NAME")
+		user           = mustGetenv("CLOUDSQL_USER")
+		dbName         = os.Getenv("CLOUDSQL_DATABASE_NAME") // NOTE: dbName may be empty
+		password       = os.Getenv("CLOUDSQL_PASSWORD")      // NOTE: password may be empty
+		socket         = os.Getenv("CLOUDSQL_SOCKET_PREFIX")
+	)
+
+	if socket == "" {
+		socket = "/cloudsql"
+	}
+
+	dbURI := fmt.Sprintf("%s:%s@unix(%s/%s)/%s?parseTime=true", user, password, socket, connectionName, dbName)
 
 	// ローカル環境での開発
-	var user = "root"
-	var password = "lookin"
-	var dbName = "pbl_app1"
-
-	dbURI := fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/%s?parseTime=true", user, password, dbName)
+	//var user = "root"
+	//var password = "lookin"
+	//var dbName = "pbl_app1"
+	//
+	//dbURI := fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/%s?parseTime=true", user, password, dbName)
 	conn, err := sql.Open("mysql", dbURI)
 
 	if err != nil {
