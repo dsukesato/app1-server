@@ -16,7 +16,19 @@ type Restaurant struct {
 
 type Restaurants []Restaurant
 
+type RestaurantRequest struct {
+	Name          string `json:"name"`
+	BusinessHours string `json:"business_hours"`
+	Image         string `json:"image"`
+}
+
 type PostRestaurantRequest struct {
+	Name          string `json:"name"`
+	BusinessHours string `json:"business_hours"`
+}
+
+type PostRestaurantResponse struct {
+	Id            int    `json:"id"`
 	Name          string `json:"name"`
 	BusinessHours string `json:"business_hours"`
 	Image         string `json:"image"`

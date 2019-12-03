@@ -11,6 +11,20 @@ type PostsRepository struct {
 	DBConn
 }
 
+func (repo *PostsRepository) GetLastId(ctx context.Context) (identifier int, err error) {
+	row, err := repo.QueryContext(ctx, "select id from post order by id desc limit 1")
+	if err != nil {
+		log.Printf("Could not query result with GetLastId: %v", err)
+	}
+	defer row.Close()
+
+	row.Next()
+	if err = row.Scan(&identifier); err != nil {
+		log.Printf("row.Scan()でerror: %v\n", err)
+	}
+	return
+}
+
 func (repo *PostsRepository) GetSelect(ctx context.Context, identifier int) (post model.Post, err error) {
 	row, err := repo.QueryContext(ctx, "select * from post where id = ?", identifier)
 	if err != nil {
@@ -98,7 +112,7 @@ func (repo *PostsRepository) GetAll(ctx context.Context) (posts model.Posts, err
 	return
 }
 
-func (repo *PostsRepository) Store(ctx context.Context, posting model.PostPostsRequest) (id int, err error) {
+func (repo *PostsRepository) Store(ctx context.Context, posting model.PostsRequest) (id int, err error) {
 	result, err := repo.ExecContext(ctx,
 		"insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (?, ?, ?, ?, ?, now())",
 		posting.UserId, posting.RestaurantId, posting.Image, posting.Genre, posting.Comment)

@@ -8,5 +8,6 @@ import (
 type RestaurantsRepository interface {
 	GetAll(context.Context) (model.Restaurants, error)
 	GetSelectById(context.Context, int) (model.Restaurant, error)
-	Store(context.Context, model.PostRestaurantRequest) (int, error)
+	GetLastId(context.Context) (int, error)
+	Store(context.Context, model.RestaurantRequest) (int, error)
 }

@@ -8,5 +8,6 @@ import (
 type PostsRepository interface {
 	GetAll(context.Context) (model.Posts, error)
 	GetSelect(context.Context, int) (model.Post, error)
-	Store(context.Context, model.PostPostsRequest) (int, error)
+	GetLastId(context.Context) (int, error)
+	Store(context.Context, model.PostsRequest) (int, error)
 }

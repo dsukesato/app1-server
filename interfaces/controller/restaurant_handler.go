@@ -1,12 +1,19 @@
 package controller
 
 import (
+	"bytes"
+	"cloud.google.com/go/storage"
+	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/dsukesato/go13/pbl/app1-server/domain/model"
 	"github.com/gorilla/mux"
+	"image/jpeg"
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"path"
 	"strconv"
 	"time"
 
@@ -20,7 +27,7 @@ type RestaurantsController struct {
 
 func NewRestaurantsController(dbconn database.DBConn) *RestaurantsController {
 	return &RestaurantsController {
-		Interactor: usecase.RestaurantsInteractor{
+		Interactor: usecase.RestaurantsInteractor {
 			RestaurantsRepository: &database.RestaurantsRepository {
 				DBConn: dbconn,
 			},
@@ -91,41 +98,86 @@ func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r 
 		http.NotFound(w, r)
 		return
 	}
+
+	//if r.Header.Get("Content-Type") != "multipart/form-data" {
+	//	w.WriteHeader(http.StatusBadRequest)
+	//	return
+	//}
+
+	formValue := r.FormValue("json")
+
+	var jsonBody model.PostRestaurantRequest
+
+	b := []byte(formValue)
+	err := json.Unmarshal(b, &jsonBody)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Fatal(err)
+	}
+
+	formFile, _, err := r.FormFile("image")
+	handleError(err)
+	defer formFile.Close()
+
+	dir, err := os.Getwd()
+	filename := "upload_restaurant.jpeg"
+	saveFile, err := os.Create(path.Join(dir + "/image", filename))
+	handleError(err)
+	defer saveFile.Close()
+
+	handleError(err)
+	uploadFile, err := os.Create(path.Join(dir + "/image", filename))
+	handleError(err)
+	_, err = io.Copy(uploadFile, formFile)
+
+	// gcs
+	file, err := os.Open("image/upload_restaurant.jpeg")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	image, err := jpeg.Decode(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = file.Close()
+
+	buffer := new(bytes.Buffer)
+	if err := jpeg.Encode(buffer, image, nil); err != nil {
+		log.Println("unable to encode image.")
+	}
+	imageBytes := buffer.Bytes()
+
 	ctx := r.Context()
+	id, err := c.Interactor.RestaurantLastId(ctx)
 
-	if r.Header.Get("Content-Type") != "application/json" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	bucket := "pbl-lookin-storage" // GCSバケット名
+	obj := fmt.Sprintf("restaurant%d.jpeg", id+1)
+	bCtx := context.Background()
 
-	//To allocate slice for request body
-	length, err := strconv.Atoi(r.Header.Get("Content-Length"))
+	client, err := storage.NewClient(bCtx)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		log.Printf("failed to create gcs client : %v", err)
 	}
 
-	//Read body data to parse json
-	body := make([]byte, length)
-	length, err = r.Body.Read(body)
-	if err != nil && err != io.EOF {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	// GCS writer
+	writer := client.Bucket(bucket).Object(obj).NewWriter(bCtx)
+	writer.ContentType = "image/jpeg" // 任意のContentTypeに置き換える
+
+	// upload : write object body
+	if _, err := writer.Write(imageBytes); err != nil {
+		log.Printf("failed to write object body : %v", err)
 	}
 
-	//parse json
-	var jsonBody = new(model.PostRestaurantRequest)
-	err = json.Unmarshal(body[:length], &jsonBody)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	if err := writer.Close(); err != nil {
+		log.Printf("failed to close gcs writer : %v", err)
 	}
+	w.WriteHeader(http.StatusCreated)
 
-	request := model.PostRestaurantRequest{}
+	request := model.RestaurantRequest{}
 	request.Name = jsonBody.Name
 	request.BusinessHours = jsonBody.BusinessHours
-	request.Image = jsonBody.Image
-
+	request.Image = fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucket, obj)
 	posts, err := c.Interactor.Add(ctx, request)
 
 	if err != nil {
@@ -137,12 +189,4 @@ func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r 
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
-}
-
-type PostRestaurantResponse struct {
-	RestaurantId int       `json:"restaurant_id"`
-	RestaurantName string  `json:"restaurant_name"`
-	BusinessHours string   `json:"business_hours"`
-	RestaurantImage string `json:"restaurant_image"`
-	Message string         `json:"massage"`
 }

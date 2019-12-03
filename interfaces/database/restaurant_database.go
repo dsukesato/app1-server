@@ -11,10 +11,24 @@ type RestaurantsRepository struct {
 	DBConn
 }
 
+func (repo *RestaurantsRepository) GetLastId(ctx context.Context) (identifier int, err error) {
+	row, err := repo.QueryContext(ctx, "select id from restaurant order by id desc limit 1")
+	if err != nil {
+		log.Printf("Could not query result with GetLastId: %v", err)
+	}
+	defer row.Close()
+
+	row.Next()
+	if err = row.Scan(&identifier); err != nil {
+		log.Printf("row.Scan()でerror: %v\n", err)
+	}
+	return
+}
+
 func (repo *RestaurantsRepository) GetSelectById(ctx context.Context, identifier int) (restaurant model.Restaurant, err error) {
 	row, err := repo.QueryContext(ctx, "select * from restaurant where id = ?", identifier)
 	if err != nil {
-		log.Printf("Could not scan result with GetSelect: %v", err)
+		log.Printf("Could not query result with GetSelect: %v", err)
 		return
 	}
 	defer row.Close()
@@ -86,7 +100,7 @@ func (repo *RestaurantsRepository) GetAll(ctx context.Context) (restaurants mode
 	return
 }
 
-func (repo *RestaurantsRepository) Store(ctx context.Context, rRegistry model.PostRestaurantRequest) (id int, err error) {
+func (repo *RestaurantsRepository) Store(ctx context.Context, rRegistry model.RestaurantRequest) (id int, err error) {
 	result, err := repo.ExecContext(ctx,
 		"insert into pbl_app1.restaurant (name, business_hours, image, created_at) values (?, ?, ?, now())",
 		rRegistry.Name, rRegistry.BusinessHours, rRegistry.Image)

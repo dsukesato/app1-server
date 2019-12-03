@@ -10,6 +10,11 @@ type RestaurantsInteractor struct {
 	RestaurantsRepository repository.RestaurantsRepository
 }
 
+func (i *RestaurantsInteractor) RestaurantLastId(ctx context.Context) (identifier int, err error) {
+	identifier, err = i.RestaurantsRepository.GetLastId(ctx)
+	return
+}
+
 func (i *RestaurantsInteractor) RestaurantById(ctx context.Context, identifier int) (restaurant model.Restaurant, err error) {
 	restaurant, err = i.RestaurantsRepository.GetSelectById(ctx, identifier)
 
@@ -23,7 +28,7 @@ func (i *RestaurantsInteractor) RestaurantsAll(ctx context.Context) (restaurants
 }
 
 // rRegistryはrestaurant Registryの略
-func (i *RestaurantsInteractor) Add(ctx context.Context, rRequest model.PostRestaurantRequest) (rRegistry model.Restaurant, err error) {
+func (i *RestaurantsInteractor) Add(ctx context.Context, rRequest model.RestaurantRequest) (rRegistry model.Restaurant, err error) {
 	id, err := i.RestaurantsRepository.Store(ctx, rRequest)
 
 	rRegistry, err = i.RestaurantsRepository.GetSelectById(ctx, id)
