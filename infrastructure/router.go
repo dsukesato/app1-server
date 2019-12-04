@@ -37,7 +37,8 @@ func Serve() {
 	r.HandleFunc("/Lookin/users/", uc.UsersSendHandler).Methods("POST")
 
 	r.HandleFunc("/Lookin/recognize/", rec.RecognizeIndexHandler).Methods("GET")
-	r.HandleFunc("/Lookin/recognize/{id}", rec.RecognizeIdHandler).Methods("GET")
+	r.HandleFunc("/Lookin/recognize/id:{id}", rec.RecognizeIdHandler).Methods("GET")
+	r.HandleFunc("/Lookin/recognize/user_id:{user_id}", rec.RecognizeUIdHandler).Methods("GET")
 	r.HandleFunc("/Lookin/recognize/", rec.RecognizeSendHandler).Methods("POST")
 
 	r.HandleFunc("/Lookin/good/", gc.GoodIndexHandler).Methods("GET")

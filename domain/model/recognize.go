@@ -19,3 +19,12 @@ type PostRecognizeRequest struct {
 	RestaurantId int `json:"restaurant_id"`
 	UserId       int `json:"user_id"`
 }
+
+type RecognizeResponse struct {
+	Id        int          `json:"id"`
+	Name      string       `json:"name"`
+	Image     string       `json:"image"`
+	CreatedAt sql.NullTime `json:"created_at"`
+}
+
+type RecResponse []RecognizeResponse

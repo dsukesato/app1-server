@@ -71,6 +71,30 @@ func (c *RecognizeController) RecognizeIdHandler(w http.ResponseWriter, r *http.
 	}
 }
 
+func (c *RecognizeController) RecognizeUIdHandler(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	log.Printf(params["user_id"])
+	uid, err := strconv.Atoi(params["user_id"])
+	log.Printf("user_id: %d\n", uid)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	ctx := r.Context()
+	recognize, err := c.Interactor.RecognizeByUId(ctx, uid)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(w).Encode(recognize); err != nil {
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+}
+
 func (c *RecognizeController) RecognizeSendHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/Lookin/recognize/" {
 		http.NotFound(w, r)

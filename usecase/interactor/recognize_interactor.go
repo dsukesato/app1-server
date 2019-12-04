@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/dsukesato/go13/pbl/app1-server/domain/model"
 	"github.com/dsukesato/go13/pbl/app1-server/usecase/repository"
+	"log"
 )
 
 type RecognizeInteractor struct {
@@ -12,6 +13,23 @@ type RecognizeInteractor struct {
 
 func (i *RecognizeInteractor) RecognizeById(ctx context.Context, identifier int) (recognize model.Recognize, err error) {
 	recognize, err = i.RecognizeRepository.GetSelect(ctx, identifier)
+
+	return
+}
+
+func (i *RecognizeInteractor) RecognizeByUId(ctx context.Context, uid int) (rrs model.RecResponse, err error) {
+	rids, err := i.RecognizeRepository.GetSelectUID(ctx, uid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, rid := range rids {
+		rr, err := i.RecognizeRepository.GetSelectRID(ctx, rid)
+		if err != nil {
+			log.Fatal(err)
+		}
+		rrs = append(rrs, rr)
+	}
 
 	return
 }

@@ -47,6 +47,54 @@ func (repo *RecognizeRepository) GetSelect(ctx context.Context, identifier int) 
 	return
 }
 
+func (repo *RecognizeRepository) GetSelectUID(ctx context.Context, uid int) (rids []int, err error) {
+	row, err := repo.QueryContext(ctx, "select restaurant_id from recognize where user_id = ?", uid)
+	if err != nil {
+		log.Printf("Could not scan result with GetSelectUID(recognize-table): %v", err)
+		return
+	}
+	defer row.Close()
+
+	for row.Next() {
+		var restaurantId int
+
+		if err = row.Scan(&restaurantId); err != nil {
+			log.Printf("row.Scan()でerror: %v\n", err)
+			return
+		}
+		rids = append(rids, restaurantId)
+	}
+	return
+}
+
+func (repo *RecognizeRepository) GetSelectRID(ctx context.Context, rid int) (rr model.RecognizeResponse, err error) {
+	rows, err := repo.QueryContext(ctx, "select id, name, image, created_at from restaurant where id = ?", rid)
+	if err != nil {
+		log.Printf("Could not scan result with GetSelectUID(restaurant-table): %v", err)
+		return
+	}
+	defer rows.Close()
+
+	var (
+		id int
+		name string
+		image string
+		createdAt sql.NullTime
+	)
+	rows.Next()
+	if err = rows.Scan(&id, &name, &image, &createdAt); err != nil {
+		log.Printf("row.Scan()でerror: %v\n", err)
+		return
+	}
+	rr = model.RecognizeResponse{
+		Id: id,
+		Name: name,
+		Image: image,
+		CreatedAt: createdAt,
+	}
+	return
+}
+
 func (repo *RecognizeRepository) GetAll(ctx context.Context) (rec model.Rec, err error){
 	rows, err := repo.QueryContext(ctx, "select * from recognize")
 	if err != nil {
