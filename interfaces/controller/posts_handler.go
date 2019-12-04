@@ -183,7 +183,7 @@ func (c *PostsController) PostsSendHandler(w http.ResponseWriter, r *http.Reques
 	//_, err = io.Copy(uploadFile, formFile)
 
 	// gcs
-	file, err := os.Open("image/upload_posts.jpeg")
+	file, err := os.Open(path.Join(dir + "/image/upload_posts.jpeg"))
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -131,7 +131,7 @@ func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r 
 	//_, err = io.Copy(uploadFile, formFile)
 
 	// gcs
-	file, err := os.Open("image/upload_restaurant.jpeg")
+	file, err := os.Open(path.Join(dir + "/image/upload_restaurant.jpeg"))
 	if err != nil {
 		log.Fatal(err)
 	}
