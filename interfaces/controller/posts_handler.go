@@ -5,6 +5,7 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/dsukesato/go13/pbl/app1-server/domain/model"
 	"github.com/dsukesato/go13/pbl/app1-server/interfaces/database"
@@ -108,28 +109,18 @@ func (c *PostsController) PostsRIGHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
-//type GetPostsResponse struct {
-//	Posts []PostsField `json:"posts"`
-//}
-//
-//type PostsField struct {
-//	Id           int       `json:"id"`
-//	UserId       int       `json:"user_id"`
-//	RestaurantId int       `json:"restaurant_id"`
-//	Image        string    `json:"image"`
-//	Good         int       `json:"good"`
-//	Genre        string    `json:"genre"`
-//	Comment      string    `json:"comment"`
-//	CreatedAt    sql.NullTime `json:"created_at"`
-//	UpdatedAt    sql.NullTime `json:"updated_at"`
-//	DeletedAt    sql.NullTime `json:"deleted_at"`
-//}
+var (
+	inMemory bool
+)
 
 func (c *PostsController) PostsSendHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/Lookin/posts/" {
 		http.NotFound(w, r)
 		return
 	}
+
+	flag.BoolVar(&inMemory, "in-mem", false, "Add -in-mem flag for in-memory-only uploads")
+	flag.Parse()
 
 	//if r.Header.Get("Content-Type") != "application/json" {
 	//	w.WriteHeader(http.StatusBadRequest)
@@ -158,15 +149,38 @@ func (c *PostsController) PostsSendHandler(w http.ResponseWriter, r *http.Reques
 	defer formFile.Close()
 
 	dir, err := os.Getwd()
+	handleError(err)
+
 	filename := "upload_posts.jpeg"
 	saveFile, err := os.Create(path.Join(dir + "/image", filename))
 	handleError(err)
 	defer saveFile.Close()
 
+	if inMemory {
+		_, err = io.Copy(saveFile, formFile)
+	} else {
+		uploadFile, err := os.Create(path.Join(dir + "/image", filename))
+		handleError(err)
+		defer uploadFile.Close()
+
+		_, err = io.Copy(uploadFile, formFile)
+	}
 	handleError(err)
-	uploadFile, err := os.Create(path.Join(dir + "/image", filename))
-	handleError(err)
-	_, err = io.Copy(uploadFile, formFile)
+
+	//formFile, _, err := r.FormFile("image")
+	//handleError(err)
+	//defer formFile.Close()
+	//
+	//dir, err := os.Getwd()
+	//filename := "upload_posts.jpeg"
+	//saveFile, err := os.Create(path.Join(dir + "/image", filename))
+	//handleError(err)
+	//defer saveFile.Close()
+	//
+	//handleError(err)
+	//uploadFile, err := os.Create(path.Join(dir + "/image", filename))
+	//handleError(err)
+	//_, err = io.Copy(uploadFile, formFile)
 
 	// gcs
 	file, err := os.Open("image/upload_posts.jpeg")

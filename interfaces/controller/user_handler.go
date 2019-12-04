@@ -75,19 +75,6 @@ func (c *UsersController) UsersIdHandler(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-//type GetUsersResponse struct {
-//	Users []UsersField `json:"posts"`
-//}
-//
-//type UsersField struct {
-//	Id           int          `json:"id"`
-//	Name         string       `json:"name"`
-//	Password     string       `json:"password"`
-//	CreatedAt    sql.NullTime `json:"created_at"`
-//	UpdatedAt    sql.NullTime `json:"updated_at"`
-//	DeletedAt    sql.NullTime `json:"deleted_at"`
-//}
-
 func (c *UsersController) UsersSendHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/Lookin/users/" {
 		http.NotFound(w, r)

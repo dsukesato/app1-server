@@ -5,6 +5,7 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/dsukesato/go13/pbl/app1-server/domain/model"
 	"github.com/dsukesato/go13/pbl/app1-server/interfaces/database"
@@ -88,6 +89,9 @@ func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r 
 	//	return
 	//}
 
+	flag.BoolVar(&inMemory, "in-mem", false, "Add -in-mem flag for in-memory-only uploads")
+	flag.Parse()
+
 	formValue := r.FormValue("json")
 
 	var jsonBody model.PostRestaurantRequest
@@ -104,15 +108,27 @@ func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r 
 	defer formFile.Close()
 
 	dir, err := os.Getwd()
+	handleError(err)
+
 	filename := "upload_restaurant.jpeg"
 	saveFile, err := os.Create(path.Join(dir + "/image", filename))
 	handleError(err)
 	defer saveFile.Close()
 
+	if inMemory {
+		_, err = io.Copy(saveFile, formFile)
+	} else {
+		uploadFile, err := os.Create(path.Join(dir + "/image", filename))
+		handleError(err)
+		defer uploadFile.Close()
+
+		_, err = io.Copy(uploadFile, formFile)
+	}
 	handleError(err)
-	uploadFile, err := os.Create(path.Join(dir + "/image", filename))
-	handleError(err)
-	_, err = io.Copy(uploadFile, formFile)
+
+	//uploadFile, err := os.Create(path.Join(dir + "/image", filename))
+	//handleError(err)
+	//_, err = io.Copy(uploadFile, formFile)
 
 	// gcs
 	file, err := os.Open("image/upload_restaurant.jpeg")
@@ -172,5 +188,11 @@ func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r 
 	if err = json.NewEncoder(w).Encode(posts); err != nil {
 		http.Error(w, "Internal Server Error", 500)
 		return
+	}
+}
+
+func handleError(err error) {
+	if err != nil {
+		log.Fatal(err)
 	}
 }

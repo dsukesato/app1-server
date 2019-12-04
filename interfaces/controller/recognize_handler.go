@@ -71,19 +71,6 @@ func (c *RecognizeController) RecognizeIdHandler(w http.ResponseWriter, r *http.
 	}
 }
 
-//type GetRecognizeResponse struct {
-//	Recogs []RecognizeField `json:"posts"`
-//}
-//
-//type RecognizeField struct {
-//	Id           int          `json:"id"`
-//	RestaurantId int          `json:"restaurant_id"`
-//	UserId       int          `json:"user_id"`
-//	CreatedAt    sql.NullTime `json:"created_at"`
-//	UpdatedAt    sql.NullTime `json:"updated_at"`
-//	DeletedAt    sql.NullTime `json:"deleted_at"`
-//}
-
 func (c *RecognizeController) RecognizeSendHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/Lookin/recognize/" {
 		http.NotFound(w, r)
