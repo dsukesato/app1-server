@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"bytes"
 	"cloud.google.com/go/storage"
 	"context"
 	"encoding/json"
@@ -10,12 +9,9 @@ import (
 	"github.com/dsukesato/go13/pbl/app1-server/domain/model"
 	"github.com/dsukesato/go13/pbl/app1-server/interfaces/database"
 	"github.com/gorilla/mux"
-	"image/jpeg"
 	"io"
 	"log"
 	"net/http"
-	"os"
-	"path"
 	"strconv"
 
 	usecase "github.com/dsukesato/go13/pbl/app1-server/usecase/interactor"
@@ -148,57 +144,42 @@ func (c *PostsController) PostsSendHandler(w http.ResponseWriter, r *http.Reques
 	handleError(err)
 	defer formFile.Close()
 
-	dir, err := os.Getwd()
-	handleError(err)
-
-	filename := "upload_posts.jpeg"
-	saveFile, err := os.Create(path.Join(dir + "/image", filename))
-	handleError(err)
-	defer saveFile.Close()
-
-	if inMemory {
-		_, err = io.Copy(saveFile, formFile)
-	} else {
-		uploadFile, err := os.Create(path.Join(dir + "/image", filename))
-		handleError(err)
-		defer uploadFile.Close()
-
-		_, err = io.Copy(uploadFile, formFile)
-	}
-	handleError(err)
-
-	//formFile, _, err := r.FormFile("image")
-	//handleError(err)
-	//defer formFile.Close()
-	//
 	//dir, err := os.Getwd()
+	//handleError(err)
+	//
 	//filename := "upload_posts.jpeg"
 	//saveFile, err := os.Create(path.Join(dir + "/image", filename))
 	//handleError(err)
 	//defer saveFile.Close()
 	//
+	//if inMemory {
+	//	_, err = io.Copy(saveFile, formFile)
+	//} else {
+	//	uploadFile, err := os.Create(path.Join(dir + "/image", filename))
+	//	handleError(err)
+	//	defer uploadFile.Close()
+	//
+	//	_, err = io.Copy(uploadFile, formFile)
+	//}
 	//handleError(err)
-	//uploadFile, err := os.Create(path.Join(dir + "/image", filename))
-	//handleError(err)
-	//_, err = io.Copy(uploadFile, formFile)
 
 	// gcs
-	file, err := os.Open(path.Join(dir + "/image/upload_posts.jpeg"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	image, err := jpeg.Decode(file)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = file.Close()
-
-	buffer := new(bytes.Buffer)
-	if err := jpeg.Encode(buffer, image, nil); err != nil {
-		log.Println("unable to encode image.")
-	}
-	imageBytes := buffer.Bytes()
+	//file, err := os.Open(path.Join(dir + "/image/upload_posts.jpeg"))
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//
+	//image, err := jpeg.Decode(file)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//err = file.Close()
+	//
+	//buffer := new(bytes.Buffer)
+	//if err := jpeg.Encode(buffer, image, nil); err != nil {
+	//	log.Println("unable to encode image.")
+	//}
+	//imageBytes := buffer.Bytes()
 
 	ctx := r.Context()
 	lastId, err := c.Interactor.PostsLastId(ctx)
@@ -216,10 +197,14 @@ func (c *PostsController) PostsSendHandler(w http.ResponseWriter, r *http.Reques
 	writer := client.Bucket(bucket).Object(obj).NewWriter(bCtx)
 	writer.ContentType = "image/jpeg" // 任意のContentTypeに置き換える
 
+	// uploadされた画像をgcsのwriterにコピー
+	_, err = io.Copy(writer, formFile)
+	handleError(err)
+
 	// upload : write object body
-	if _, err := writer.Write(imageBytes); err != nil {
-		log.Printf("failed to write object body : %v", err)
-	}
+	//if _, err := writer.Write(imageBytes); err != nil {
+	//	log.Printf("failed to write object body : %v", err)
+	//}
 
 	if err := writer.Close(); err != nil {
 		log.Printf("failed to close gcs writer : %v", err)
