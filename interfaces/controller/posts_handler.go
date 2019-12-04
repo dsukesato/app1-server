@@ -4,7 +4,6 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"github.com/dsukesato/go13/pbl/app1-server/domain/model"
 	"github.com/dsukesato/go13/pbl/app1-server/interfaces/database"
@@ -105,18 +104,11 @@ func (c *PostsController) PostsRIGHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
-var (
-	inMemory bool
-)
-
 func (c *PostsController) PostsSendHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/Lookin/posts/" {
 		http.NotFound(w, r)
 		return
 	}
-
-	flag.BoolVar(&inMemory, "in-mem", false, "Add -in-mem flag for in-memory-only uploads")
-	flag.Parse()
 
 	//if r.Header.Get("Content-Type") != "application/json" {
 	//	w.WriteHeader(http.StatusBadRequest)
@@ -144,43 +136,6 @@ func (c *PostsController) PostsSendHandler(w http.ResponseWriter, r *http.Reques
 	handleError(err)
 	defer formFile.Close()
 
-	//dir, err := os.Getwd()
-	//handleError(err)
-	//
-	//filename := "upload_posts.jpeg"
-	//saveFile, err := os.Create(path.Join(dir + "/image", filename))
-	//handleError(err)
-	//defer saveFile.Close()
-	//
-	//if inMemory {
-	//	_, err = io.Copy(saveFile, formFile)
-	//} else {
-	//	uploadFile, err := os.Create(path.Join(dir + "/image", filename))
-	//	handleError(err)
-	//	defer uploadFile.Close()
-	//
-	//	_, err = io.Copy(uploadFile, formFile)
-	//}
-	//handleError(err)
-
-	// gcs
-	//file, err := os.Open(path.Join(dir + "/image/upload_posts.jpeg"))
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//image, err := jpeg.Decode(file)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//err = file.Close()
-	//
-	//buffer := new(bytes.Buffer)
-	//if err := jpeg.Encode(buffer, image, nil); err != nil {
-	//	log.Println("unable to encode image.")
-	//}
-	//imageBytes := buffer.Bytes()
-
 	ctx := r.Context()
 	lastId, err := c.Interactor.PostsLastId(ctx)
 
@@ -200,11 +155,6 @@ func (c *PostsController) PostsSendHandler(w http.ResponseWriter, r *http.Reques
 	// uploadされた画像をgcsのwriterにコピー
 	_, err = io.Copy(writer, formFile)
 	handleError(err)
-
-	// upload : write object body
-	//if _, err := writer.Write(imageBytes); err != nil {
-	//	log.Printf("failed to write object body : %v", err)
-	//}
 
 	if err := writer.Close(); err != nil {
 		log.Printf("failed to close gcs writer : %v", err)

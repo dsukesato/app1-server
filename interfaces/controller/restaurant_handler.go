@@ -1,22 +1,17 @@
 package controller
 
 import (
-	"bytes"
 	"cloud.google.com/go/storage"
 	"context"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"github.com/dsukesato/go13/pbl/app1-server/domain/model"
 	"github.com/dsukesato/go13/pbl/app1-server/interfaces/database"
 	usecase "github.com/dsukesato/go13/pbl/app1-server/usecase/interactor"
 	"github.com/gorilla/mux"
-	"image/jpeg"
 	"io"
 	"log"
 	"net/http"
-	"os"
-	"path"
 	"strconv"
 )
 
@@ -89,9 +84,6 @@ func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r 
 	//	return
 	//}
 
-	flag.BoolVar(&inMemory, "in-mem", false, "Add -in-mem flag for in-memory-only uploads")
-	flag.Parse()
-
 	formValue := r.FormValue("json")
 
 	var jsonBody model.PostRestaurantRequest
@@ -107,52 +99,11 @@ func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r 
 	handleError(err)
 	defer formFile.Close()
 
-	dir, err := os.Getwd()
-	handleError(err)
-
-	filename := "upload_restaurant.jpeg"
-	saveFile, err := os.Create(path.Join(dir + "/image", filename))
-	handleError(err)
-	defer saveFile.Close()
-
-	if inMemory {
-		_, err = io.Copy(saveFile, formFile)
-	} else {
-		uploadFile, err := os.Create(path.Join(dir + "/image", filename))
-		handleError(err)
-		defer uploadFile.Close()
-
-		_, err = io.Copy(uploadFile, formFile)
-	}
-	handleError(err)
-
-	//uploadFile, err := os.Create(path.Join(dir + "/image", filename))
-	//handleError(err)
-	//_, err = io.Copy(uploadFile, formFile)
-
-	// gcs
-	file, err := os.Open(path.Join(dir + "/image/upload_restaurant.jpeg"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	image, err := jpeg.Decode(file)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = file.Close()
-
-	buffer := new(bytes.Buffer)
-	if err := jpeg.Encode(buffer, image, nil); err != nil {
-		log.Println("unable to encode image.")
-	}
-	imageBytes := buffer.Bytes()
-
 	ctx := r.Context()
-	id, err := c.Interactor.RestaurantLastId(ctx)
+	rLastId, err := c.Interactor.RestaurantLastId(ctx)
 
 	bucket := "pbl-lookin-storage" // GCSバケット名
-	obj := fmt.Sprintf("restaurant%d.jpeg", id+1)
+	obj := fmt.Sprintf("restaurant%d.jpeg", rLastId+1)
 	bCtx := context.Background()
 
 	client, err := storage.NewClient(bCtx)
@@ -164,10 +115,9 @@ func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r 
 	writer := client.Bucket(bucket).Object(obj).NewWriter(bCtx)
 	writer.ContentType = "image/jpeg" // 任意のContentTypeに置き換える
 
-	// upload : write object body
-	if _, err := writer.Write(imageBytes); err != nil {
-		log.Printf("failed to write object body : %v", err)
-	}
+	// uploadされた画像をgcsのwriterにコピー
+	_, err = io.Copy(writer, formFile)
+	handleError(err)
 
 	if err := writer.Close(); err != nil {
 		log.Printf("failed to close gcs writer : %v", err)
