@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dsukesato/go13/pbl/app1-server/domain/model"
+	"github.com/dsukesato/go13/pbl/app1-server/interfaces/database"
+	usecase "github.com/dsukesato/go13/pbl/app1-server/usecase/interactor"
 	"github.com/gorilla/mux"
 	"image/jpeg"
 	"io"
@@ -15,10 +17,6 @@ import (
 	"os"
 	"path"
 	"strconv"
-	"time"
-
-	"github.com/dsukesato/go13/pbl/app1-server/interfaces/database"
-	usecase "github.com/dsukesato/go13/pbl/app1-server/usecase/interactor"
 )
 
 type RestaurantsController struct {
@@ -77,20 +75,6 @@ func (c *RestaurantsController) RestaurantsIdHandler(w http.ResponseWriter, r *h
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
-}
-
-type GetRestaurantsResponse struct {
-	Restaurants []RestaurantsField `json:"restaurants"`
-}
-
-type RestaurantsField struct {
-	RestaurantId int       `json:"restaurant_id"`
-	RestaurantName string  `json:"restaurant_name"`
-	BusinessHours string   `json:"business_hours"`
-	RestaurantImage string `json:"restaurant_image"`
-	CreatedAt time.Time    `json:"created_at"`
-	UpdatedAt time.Time    `json:"updated_at"`
-	DeletedAt time.Time    `json:"deleted_at"`
 }
 
 func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r *http.Request) {

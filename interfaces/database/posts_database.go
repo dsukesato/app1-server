@@ -69,6 +69,43 @@ func (repo *PostsRepository) GetSelect(ctx context.Context, identifier int) (pos
 	return
 }
 
+func (repo *PostsRepository) GetSelectRIG(ctx context.Context, rid int, genre string) (rig model.PRIG, err error) {
+	rows, err := repo.QueryContext(ctx, "select * from post where restaurant_id = ? and genre = ?", rid, genre)
+	if err != nil {
+		log.Printf("Could not scan result with GetSelectRIG: %v", err)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			id int
+			userId int
+			restaurantId int
+			image string
+			good int
+			genre string
+			comment string
+			createdAt sql.NullTime
+			updatedAt sql.NullTime
+			deletedAt sql.NullTime
+		)
+		if err := rows.Scan(&id, &userId, &restaurantId, &image, &good, &genre, &comment, &createdAt, &updatedAt, &deletedAt);
+			err != nil {
+			log.Printf("row.Scan()でerror: %v\n", err)
+			continue
+		}
+		post := model.PostsRIGResponse {
+			Id: id,
+			Image: image,
+			CreatedAt: createdAt,
+		}
+		log.Println(post.Id)
+		rig = append(rig, post)
+	}
+	return
+}
+
 func (repo *PostsRepository) GetAll(ctx context.Context) (posts model.Posts, err error){
 	rows, err := repo.QueryContext(ctx, "select * from post")
 	if err != nil {
@@ -95,7 +132,7 @@ func (repo *PostsRepository) GetAll(ctx context.Context) (posts model.Posts, err
 			log.Printf("row.Scan()でerror: %v\n", err)
 			continue
 		}
-		post := model.Post{
+		post := model.Post {
 			Id: id,
 			UserId: userId,
 			RestaurantId: restaurantId,

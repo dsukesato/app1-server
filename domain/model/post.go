@@ -46,3 +46,11 @@ type PostPostsResponse struct {
 	UpdatedAt    sql.NullTime `json:"updated_at"`
 	DeletedAt    sql.NullTime `json:"deleted_at"`
 }
+
+type PostsRIGResponse struct {
+	Id           int          `json:"id"`
+	Image        string       `json:"image"`
+	CreatedAt    sql.NullTime `json:"created_at"`
+}
+
+type PRIG []PostsRIGResponse

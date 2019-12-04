@@ -71,15 +71,15 @@ func (c *GoodController) GoodIdHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type GetGoodResponse struct {
-	Posts []PostsField `json:"goods"`
-}
-
-type GoodField struct {
-	Id     int `json:"id"`
-	PostId int `json:"post_id"`
-	UserId int `json:"user_id"`
-}
+//type GetGoodResponse struct {
+//	Goods []GoodField `json:"goods"`
+//}
+//
+//type GoodField struct {
+//	Id     int `json:"id"`
+//	PostId int `json:"post_id"`
+//	UserId int `json:"user_id"`
+//}
 
 func (c *GoodController) GoodSendHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/Lookin/good/" {

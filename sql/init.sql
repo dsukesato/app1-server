@@ -83,41 +83,51 @@ insert into pbl_app1.user (name, password, created_at) values ('yamada', 'yamaya
 insert into pbl_app1.user (name, password, created_at) values ('wakazono', 'yuta1126', now());
 
 # restaurant table
-insert into pbl_app1.restaurant (name, business_hours, image, created_at) values ('乃が美', '11:00-24:00', 'https://storage.cloud.google.com/pbl-lookin/image/jpeg/restaurant/restaurant1.jpeg?hl=ja', now());
-insert into pbl_app1.restaurant (name, business_hours, image, created_at) values ('Pommeno-ki', '10:00-22:00', 'https://storage.cloud.google.com/pbl-lookin/image/jpeg/restaurant/restaurant2.jpg?hl=ja', now());
-insert into pbl_app1.restaurant (name, business_hours, image, created_at) values ('VELDE', '19:00-02:00', 'https://storage.cloud.google.com/pbl-lookin/image/jpeg/restaurant/restaurant3.jpeg?hl=ja', now());
+insert into pbl_app1.restaurant (name, business_hours, image, created_at) values ('乃が美', '11:00-24:00', 'https://storage.googleapis.com/pbl-lookin-storage/restaurant1.jpeg', now());
+insert into pbl_app1.restaurant (name, business_hours, image, created_at) values ('Pommeno-ki', '10:00-22:00', 'https://storage.googleapis.com/pbl-lookin-storage/restaurant2.jpeg', now());
+insert into pbl_app1.restaurant (name, business_hours, image, created_at) values ('VELDE', '19:00-02:00', 'https://storage.googleapis.com/pbl-lookin-storage/restaurant3.jpeg', now());
+insert into pbl_app1.restaurant (name, business_hours, image, created_at) values ('備後屋', '19:00-01:00', 'https://storage.googleapis.com/pbl-lookin-storage/restaurant4.jpeg', now());
 
 # post table
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (1, 1, 'https://storage.cloud.google.com/pbl-lookin/image/jpeg/post/mood/mood1.jpg?hl=ja', 'mood', '居心地がいい', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (2, 1, 'https://storage.cloud.google.com/pbl-lookin/image/jpeg/post/food/food1.jpeg?hl=ja', 'food', '焼き鳥うまい', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (4, 1, 'https://storage.cloud.google.com/pbl-lookin/image/jpeg/post/drink/drink2.jpeg?hl=ja', 'drink', 'ビール最高！！', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (2, 1, 'https://storage.cloud.google.com/pbl-lookin/image/jpeg/post/dessert/dessert1.jpeg?hl=ja', 'dessert', 'あまい---', now());
+insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (1, 1, 'https://storage.googleapis.com/pbl-lookin-storage/post1_mood.jpeg', 'mood', '居心地がいい', now());
+insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (2, 1, 'https://storage.googleapis.com/pbl-lookin-storage/post7_food.jpeg', 'food', '焼き鳥うまい', now());
+insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (4, 1, 'https://storage.googleapis.com/pbl-lookin-storage/post2_drink.jpeg', 'drink', 'ビール最高！！', now());
+insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (2, 1, 'https://storage.googleapis.com/pbl-lookin-storage/post4_dessert.jpeg', 'dessert', 'あまい---', now());
 
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (5, 2, 'https://storage.cloud.google.com/pbl-lookin/image/jpeg/post/food/food2.jpg?hl=ja', 'food', 'チーズ好きにはたまらない！', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (3, 2, 'https://storage.cloud.google.com/pbl-lookin/image/jpeg/post/dessert/dessert3.jpeg?hl=ja', 'dessert', '抹茶がやばい！', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (4, 2, 'https://storage.cloud.google.com/pbl-lookin/image/jpeg/post/mood/mood2.jpeg?hl=ja', 'mood', 'お洒落', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (4, 2, 'https://storage.cloud.google.com/pbl-lookin/image/jpeg/post/drink/drink1.jpg?hl=ja', 'drink', 'お酒LOVE', now());
+insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (5, 2, 'https://storage.googleapis.com/pbl-lookin-storage/post8_food.jpeg', 'food', 'チーズ好きにはたまらない！', now());
+insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (3, 2, 'https://storage.googleapis.com/pbl-lookin-storage/post11_dessert.jpeg', 'dessert', '抹茶がやばい！', now());
+insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (4, 2, 'https://storage.googleapis.com/pbl-lookin-storage/post5_mood.jpeg', 'mood', 'お洒落', now());
+insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (4, 2, 'https://storage.googleapis.com/pbl-lookin-storage/post3_drink.jpeg', 'drink', 'お酒LOVE', now());
 
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (1, 3, 'https://storage.cloud.google.com/pbl-lookin/image/jpeg/post/food/food3.jpeg?hl=ja', 'food', '淡々タンタン、ナポリタン！！', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (1, 3, 'https://storage.cloud.google.com/pbl-lookin/image/jpeg/post/food/food3.jpeg?hl=ja', 'dessert', 'パフェの断面がめっちゃ綺麗', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (5, 3, 'https://storage.cloud.google.com/pbl-lookin/image/jpeg/post/mood/mood3.jpeg?hl=ja', 'mood', 'ずっとここにいたい', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (2, 3, 'https://storage.cloud.google.com/pbl-lookin/image/jpeg/post/drink/drink3.jpg?hl=ja', 'drink', 'ゆっくりと、、、ワイン', now());
+insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (1, 3, 'https://storage.googleapis.com/pbl-lookin-storage/post9_food.jpeg', 'food', '淡々タンタン、ナポリタン！！', now());
+insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (1, 3, 'https://storage.googleapis.com/pbl-lookin-storage/post14_dessert.jpeg', 'dessert', 'パフェの断面がめっちゃ綺麗', now());
+insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (5, 3, 'https://storage.googleapis.com/pbl-lookin-storage/post6_mood.jpeg', 'mood', 'ずっとここにいたい', now());
+insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (2, 3, 'https://storage.googleapis.com/pbl-lookin-storage/post10_drink.jpeg', 'drink', 'ゆっくりと、、、ワイン', now());
+
+insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (2, 4, 'https://storage.googleapis.com/pbl-lookin-storage/post12_mood.jpeg', 'mood', 'オシャレ', now());
+insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (3, 4, 'https://storage.googleapis.com/pbl-lookin-storage/post13_drink.jpeg', 'drink', '今日は、贅沢にシャンパン', now());
+
+update pbl_app1.post set image = 'https://storage.googleapis.com/pbl-lookin-storage/post10_drink.jpeg' where id = 10;
+update pbl_app1.post set image = 'https://storage.googleapis.com/pbl-lookin-storage/post13_drink.jpeg' where id = 13;
 
 # good table
 insert into pbl_app1.good (post_id, user_id) values (1, 1);
 insert into pbl_app1.good (post_id, user_id) values (1, 2);
 insert into pbl_app1.good (post_id, user_id) values (1, 4);
-insert into pbl_app1.good (post_id, user_id) values (1, 2);
+insert into pbl_app1.good (post_id, user_id) values (1, 5);
 insert into pbl_app1.good (post_id, user_id) values (2, 5);
 insert into pbl_app1.good (post_id, user_id) values (2, 3);
+insert into pbl_app1.good (post_id, user_id) values (2, 2);
 insert into pbl_app1.good (post_id, user_id) values (2, 4);
-insert into pbl_app1.good (post_id, user_id) values (2, 4);
-insert into pbl_app1.good (post_id, user_id) values (3, 1);
+insert into pbl_app1.good (post_id, user_id) values (3, 4);
 insert into pbl_app1.good (post_id, user_id) values (3, 1);
 insert into pbl_app1.good (post_id, user_id) values (3, 5);
 insert into pbl_app1.good (post_id, user_id) values (3, 2);
 
-#recognize table
+# tableに入っているデータを全て消す(auto incrementの場合は1からデータが入る)
+truncate table good;
+
+# recognize table
 insert into pbl_app1.recognize (restaurant_id, user_id, created_at) values (1, 1, now());
 insert into pbl_app1.recognize (restaurant_id, user_id, created_at) values (1, 2, now());
 insert into pbl_app1.recognize (restaurant_id, user_id, created_at) values (1, 4, now());

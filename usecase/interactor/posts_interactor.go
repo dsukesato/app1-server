@@ -21,6 +21,11 @@ func (i *PostsInteractor) PostsById(ctx context.Context, identifier int) (post m
 	return
 }
 
+func (i *PostsInteractor) PostsByRIG(ctx context.Context, rid int, genre string) (rig model.PRIG, err error) {
+	rig, err = i.PostsRepository.GetSelectRIG(ctx, rid, genre)
+	return
+}
+
 func (i *PostsInteractor) PostsAll(ctx context.Context) (posts model.Posts, err error) {
 	posts, err = i.PostsRepository.GetAll(ctx)
 

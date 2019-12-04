@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"cloud.google.com/go/storage"
 	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/dsukesato/go13/pbl/app1-server/domain/model"
@@ -83,22 +82,48 @@ func (c *PostsController) PostsIdHandler(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-type GetPostsResponse struct {
-	Posts []PostsField `json:"posts"`
+func (c *PostsController) PostsRIGHandler(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	log.Printf(params["restaurant_id"])
+	rid, err := strconv.Atoi(params["restaurant_id"])
+	log.Printf("restaurant_id: %d\n", rid)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	genre := params["genre"]
+	log.Printf("genre: %s\n", genre)
+
+	ctx := r.Context()
+	post, err := c.Interactor.PostsByRIG(ctx, rid, genre)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(w).Encode(post); err != nil {
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
 }
 
-type PostsField struct {
-	Id           int       `json:"id"`
-	UserId       int       `json:"user_id"`
-	RestaurantId int       `json:"restaurant_id"`
-	Image        string    `json:"image"`
-	Good         int       `json:"good"`
-	Genre        string    `json:"genre"`
-	Comment      string    `json:"comment"`
-	CreatedAt    sql.NullTime `json:"created_at"`
-	UpdatedAt    sql.NullTime `json:"updated_at"`
-	DeletedAt    sql.NullTime `json:"deleted_at"`
-}
+//type GetPostsResponse struct {
+//	Posts []PostsField `json:"posts"`
+//}
+//
+//type PostsField struct {
+//	Id           int       `json:"id"`
+//	UserId       int       `json:"user_id"`
+//	RestaurantId int       `json:"restaurant_id"`
+//	Image        string    `json:"image"`
+//	Good         int       `json:"good"`
+//	Genre        string    `json:"genre"`
+//	Comment      string    `json:"comment"`
+//	CreatedAt    sql.NullTime `json:"created_at"`
+//	UpdatedAt    sql.NullTime `json:"updated_at"`
+//	DeletedAt    sql.NullTime `json:"deleted_at"`
+//}
 
 func (c *PostsController) PostsSendHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/Lookin/posts/" {
