@@ -23,13 +23,17 @@ func (repo *UsersRepository) GetSelect(ctx context.Context, identifier int) (use
 		id        int
 		name      string
 		password  string
+		gender    string
+		birthday  string
+		state     bool
+		point     int
 		createdAt sql.NullTime
 		updatedAt sql.NullTime
 		deletedAt sql.NullTime
 	)
 
 	row.Next()
-	if err = row.Scan(&id, &name, &password, &createdAt, &updatedAt, &deletedAt);
+	if err = row.Scan(&id, &name, &password, &gender, &birthday, &state, &point, &createdAt, &updatedAt, &deletedAt);
 		err != nil {
 		log.Printf("row.Scan()でerror: %v\n", err)
 		return
@@ -39,6 +43,10 @@ func (repo *UsersRepository) GetSelect(ctx context.Context, identifier int) (use
 		Id:            id,
 		Name:          name,
 		Password:      password,
+		Gender:        gender,
+		BirthDay:      birthday,
+		State:         state,
+		Point:         point,
 		CreatedAt:     createdAt,
 		UpdatedAt:     updatedAt,
 		DeletedAt:     deletedAt,
@@ -75,14 +83,18 @@ func (repo *UsersRepository) GetAll(ctx context.Context) (users model.Users, err
 
 	for rows.Next() {
 		var (
-			id            int
-			name          string
-			password      string
-			createdAt     sql.NullTime
-			updatedAt     sql.NullTime
-			deletedAt     sql.NullTime
+			id        int
+			name      string
+			password  string
+			gender    string
+			birthday  string
+			state     bool
+			point     int
+			createdAt sql.NullTime
+			updatedAt sql.NullTime
+			deletedAt sql.NullTime
 		)
-		if err := rows.Scan(&id, &name, &password, &createdAt, &updatedAt, &deletedAt);
+		if err := rows.Scan(&id, &name, &password, &gender, &birthday, &state, &point, &createdAt, &updatedAt, &deletedAt);
 			err != nil {
 			log.Printf("row.Scan()でerror: %v\n", err)
 			continue
@@ -91,6 +103,10 @@ func (repo *UsersRepository) GetAll(ctx context.Context) (users model.Users, err
 			Id:            id,
 			Name:          name,
 			Password:      password,
+			Gender:        gender,
+			BirthDay:      birthday,
+			State:         state,
+			Point:         point,
 			CreatedAt:     createdAt,
 			UpdatedAt:     updatedAt,
 			DeletedAt:     deletedAt,
@@ -102,13 +118,13 @@ func (repo *UsersRepository) GetAll(ctx context.Context) (users model.Users, err
 
 func (repo *UsersRepository) Store(ctx context.Context, uRegistry model.PostUserRequest) (id int, err error) {
 	result, err := repo.ExecContext(ctx,
-		"insert into pbl_app1.user (name, password, created_at) values (?, ?, now())",
-		uRegistry.Name, uRegistry.Password)
+		"insert into pbl_app1.user (name, password, gender, birthday, created_at) values (?, ?, ?, ?, now())",
+		uRegistry.Name, uRegistry.Password, uRegistry.Gender, uRegistry.BirthDay)
 	if err != nil {
 		return
 	}
-	log.Printf("name: %s, password: %s\n",
-		uRegistry.Name, uRegistry.Password)
+	log.Printf("name: %s, password: %s, gender: %s, birthday: %s\n",
+		uRegistry.Name, uRegistry.Password, uRegistry.Gender, uRegistry.BirthDay)
 
 	id64, err := result.LastInsertId()
 	if err != nil {

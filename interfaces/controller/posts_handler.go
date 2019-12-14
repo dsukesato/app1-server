@@ -142,7 +142,7 @@ func (c *PostsController) PostsISendHandler(w http.ResponseWriter, r *http.Reque
 	lastId, err := c.Interactor.PostsLastId(ctx)
 
 	bucket := "pbl-lookin-storage" // GCSバケット名
-	obj := fmt.Sprintf("post%d_%s.jpeg", lastId+1, jsonBody.Genre)
+	obj := fmt.Sprintf("posts/%s/post%d_%s.jpeg", jsonBody.Genre, lastId+1, jsonBody.Genre)
 	bCtx := context.Background()
 
 	client, err := storage.NewClient(bCtx)
@@ -169,7 +169,7 @@ func (c *PostsController) PostsISendHandler(w http.ResponseWriter, r *http.Reque
 	request.UserId = jsonBody.UserId
 	request.Genre = jsonBody.Genre
 	request.Comment = jsonBody.Comment
-	request.Image = fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucket, obj)
+	request.Content = fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucket, obj)
 
 	posts, err := c.Interactor.Add(ctx, request)
 
@@ -224,7 +224,7 @@ func (c *PostsController) PostsMSendHandler(w http.ResponseWriter, r *http.Reque
 	lastId, err := c.Interactor.PostsLastId(ctx)
 
 	bucket := "pbl-lookin-storage" // GCSバケット名
-	obj := fmt.Sprintf("movie/post%d_%s.mp4", lastId+1, jsonBody.Genre)
+	obj := fmt.Sprintf("posts/%s/post%d_%s.mp4", jsonBody.Genre, lastId+1, jsonBody.Genre)
 	bCtx := context.Background()
 
 	client, err := storage.NewClient(bCtx)
@@ -234,7 +234,7 @@ func (c *PostsController) PostsMSendHandler(w http.ResponseWriter, r *http.Reque
 
 	// GCS writer
 	writer := client.Bucket(bucket).Object(obj).NewWriter(bCtx)
-	writer.ContentType = "movie/mp4" // 任意のContentTypeに置き換える
+	writer.ContentType = "video/mp4" // 任意のContentTypeに置き換える
 
 	// uploadされた画像をgcsのwriterにコピー
 	_, err = io.Copy(writer, formFile)
@@ -251,7 +251,7 @@ func (c *PostsController) PostsMSendHandler(w http.ResponseWriter, r *http.Reque
 	request.UserId = jsonBody.UserId
 	request.Genre = jsonBody.Genre
 	request.Comment = jsonBody.Comment
-	request.Image = fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucket, obj)
+	request.Content = fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucket, obj)
 
 	posts, err := c.Interactor.Add(ctx, request)
 

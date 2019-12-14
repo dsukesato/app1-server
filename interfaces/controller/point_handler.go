@@ -4,50 +4,49 @@ import (
 	"encoding/json"
 	"github.com/dsukesato/go13/pbl/app1-server/entity/model"
 	"github.com/dsukesato/go13/pbl/app1-server/interfaces/database"
+	usecase "github.com/dsukesato/go13/pbl/app1-server/usecase/interactor"
 	"github.com/gorilla/mux"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
-
-	usecase "github.com/dsukesato/go13/pbl/app1-server/usecase/interactor"
 )
 
-type RecognizeController struct {
-	Interactor usecase.RecognizeInteractor
+type PointController struct {
+	Interactor usecase.PointInteractor
 }
 
-func NewRecognizeController(dbconn database.DBConn) *RecognizeController {
-	return &RecognizeController {
-		Interactor: usecase.RecognizeInteractor {
-			RecognizeRepository: &database.RecognizeRepository {
+func NewPointController(dbconn database.DBConn) *PointController {
+	return &PointController {
+		Interactor: usecase.PointInteractor {
+			PointRepository: &database.PointRepository {
 				DBConn: dbconn,
 			},
 		},
 	}
 }
 
-func (c *RecognizeController) RecognizeIndexHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/Lookin/recognize/" {
+func (c *PointController) PointIndexHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/Lookin/point/" {
 		http.NotFound(w, r)
 		return
 	}
 
 	ctx := r.Context()
-	rec, err := c.Interactor.RecognizeAll(ctx)
+	points, err := c.Interactor.PointAll(ctx)
 
 	if err != nil {
 		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(w).Encode(rec); err != nil {
+	if err = json.NewEncoder(w).Encode(points); err != nil {
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
 }
 
-func (c *RecognizeController) RecognizeIdHandler(w http.ResponseWriter, r *http.Request) {
+func (c *PointController) PointIdHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	log.Printf(params["id"])
 	id, err := strconv.Atoi(params["id"])
@@ -58,45 +57,21 @@ func (c *RecognizeController) RecognizeIdHandler(w http.ResponseWriter, r *http.
 	}
 
 	ctx := r.Context()
-	recognize, err := c.Interactor.RecognizeById(ctx, id)
+	point, err := c.Interactor.PointById(ctx, id)
 
 	if err != nil {
 		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(w).Encode(recognize); err != nil {
+	if err = json.NewEncoder(w).Encode(point); err != nil {
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
 }
 
-func (c *RecognizeController) RecognizeUIdHandler(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	log.Printf(params["user_id"])
-	uid, err := strconv.Atoi(params["user_id"])
-	log.Printf("user_id: %d\n", uid)
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-
-	ctx := r.Context()
-	recognize, err := c.Interactor.RecognizeByUId(ctx, uid)
-
-	if err != nil {
-		log.Printf("err: %v\n", err)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(w).Encode(recognize); err != nil {
-		http.Error(w, "Internal Server Error", 500)
-		return
-	}
-}
-
-func (c *RecognizeController) RecognizeSendHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/Lookin/recognize/" {
+func (c *PointController) PointSendHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/Lookin/point/" {
 		http.NotFound(w, r)
 		return
 	}
@@ -123,18 +98,19 @@ func (c *RecognizeController) RecognizeSendHandler(w http.ResponseWriter, r *htt
 	}
 
 	//parse json
-	var jsonBody = new(model.PostRecognizeRequest)
+	var jsonBody = new(model.PostPointRequest)
 	err = json.Unmarshal(body[:length], &jsonBody) // json -> Go Object
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	request := model.PostRecognizeRequest{}
+	request := model.PostPointRequest{}
 	request.RestaurantId = jsonBody.RestaurantId
 	request.UserId = jsonBody.UserId
+	request.Transaction = jsonBody.Transaction
 
-	recognize, err := c.Interactor.Add(ctx, request)
+	point, err := c.Interactor.Add(ctx, request)
 
 	if err != nil {
 		log.Printf("err: %v\n", err)
@@ -144,7 +120,7 @@ func (c *RecognizeController) RecognizeSendHandler(w http.ResponseWriter, r *htt
 	w.WriteHeader(http.StatusCreated)
 
 	w.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(w).Encode(recognize); err != nil {
+	if err = json.NewEncoder(w).Encode(point); err != nil {
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}

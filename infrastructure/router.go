@@ -21,6 +21,8 @@ func Serve() {
 	rec := controller.NewRecognizeController(Init())
 	// good(いいね)
 	gc := controller.NewGoodController(Init())
+	// point(ポイント)
+	pntc := controller.NewPointController(Init())
 
 	r.HandleFunc("/Lookin/restaurants/", rc.RestaurantsIndexHandler).Methods("GET")
 	r.HandleFunc("/Lookin/restaurants/{id}", rc.RestaurantsIdHandler).Methods("GET")
@@ -36,6 +38,7 @@ func Serve() {
 	r.HandleFunc("/Lookin/users/", uc.UsersIndexHandler).Methods("GET")
 	r.HandleFunc("/Lookin/users/{id}", uc.UsersIdHandler).Methods("GET")
 	r.HandleFunc("/Lookin/users/", uc.UsersSendHandler).Methods("POST")
+	r.HandleFunc("/Lookin/sign_up/", uc.SignUpHandler).Methods("POST")
 	r.HandleFunc("/Lookin/sign_in/", uc.SignInHandler).Methods("POST")
 
 	r.HandleFunc("/Lookin/recognize/", rec.RecognizeIndexHandler).Methods("GET")
@@ -46,6 +49,10 @@ func Serve() {
 	r.HandleFunc("/Lookin/good/", gc.GoodIndexHandler).Methods("GET")
 	r.HandleFunc("/Lookin/good/{id}", gc.GoodIdHandler).Methods("GET")
 	r.HandleFunc("/Lookin/good/", gc.GoodSendHandler).Methods("POST")
+
+	r.HandleFunc("/Lookin/point/", pntc.PointIndexHandler).Methods("GET")
+	r.HandleFunc("/Lookin/point/{id}", pntc.PointIdHandler).Methods("GET")
+	r.HandleFunc("/Lookin/point/", pntc.PointSendHandler).Methods("POST")
 
 	port := os.Getenv("PORT")
 	if port == "" {

@@ -22,10 +22,11 @@ func (repo *GoodRepository) GetSelect(ctx context.Context, identifier int) (good
 		id int
 		postId int
 		userId int
+		state bool
 	)
 
 	row.Next()
-	if err = row.Scan(&id, &postId, &userId);
+	if err = row.Scan(&id, &postId, &userId, &state);
 		err != nil {
 		log.Printf("row.Scan()でerror: %v\n", err)
 		return
@@ -35,6 +36,7 @@ func (repo *GoodRepository) GetSelect(ctx context.Context, identifier int) (good
 		Id: id,
 		PostId: postId,
 		UserId: userId,
+		State:  state,
 	}
 
 	return
@@ -53,8 +55,9 @@ func (repo *GoodRepository) GetAll(ctx context.Context) (goods model.Goods, err 
 			id int
 			postId int
 			userId int
+			state bool
 		)
-		if err := rows.Scan(&id, &postId, &userId);
+		if err := rows.Scan(&id, &postId, &userId, &state);
 			err != nil {
 			log.Printf("row.Scan()でerror: %v\n", err)
 			continue
@@ -63,6 +66,7 @@ func (repo *GoodRepository) GetAll(ctx context.Context) (goods model.Goods, err 
 			Id: id,
 			PostId: postId,
 			UserId: userId,
+			State:  state,
 		}
 		goods = append(goods, good)
 	}
@@ -76,8 +80,7 @@ func (repo *GoodRepository) Store(ctx context.Context, good model.PostGoodReques
 	if err != nil {
 		return
 	}
-	log.Printf("post_id: %d, user_id: %d\n",
-		good.PostId, good.UserId)
+	log.Printf("post_id: %d, user_id: %d\n", good.PostId, good.UserId)
 
 	id64, err := result.LastInsertId()
 	if err != nil {

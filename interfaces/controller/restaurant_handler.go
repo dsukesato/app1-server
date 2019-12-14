@@ -105,7 +105,7 @@ func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r 
 	rLastId, err := c.Interactor.RestaurantLastId(ctx)
 
 	bucket := "pbl-lookin-storage" // GCSバケット名
-	obj := fmt.Sprintf("restaurant%d.jpeg", rLastId+1)
+	obj := fmt.Sprintf("restaurants/restaurant%d.jpeg", rLastId+1)
 	bCtx := context.Background()
 
 	client, err := storage.NewClient(bCtx)

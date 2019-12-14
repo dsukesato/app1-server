@@ -37,7 +37,7 @@ func (repo *PostsRepository) GetSelect(ctx context.Context, identifier int) (pos
 		id int
 		userId int
 		restaurantId int
-		image string
+		content string
 		good int
 		genre string
 		comment string
@@ -47,7 +47,7 @@ func (repo *PostsRepository) GetSelect(ctx context.Context, identifier int) (pos
 	)
 
 	row.Next()
-	if err = row.Scan(&id, &userId, &restaurantId, &image, &good, &genre, &comment, &createdAt, &updatedAt, &deletedAt);
+	if err = row.Scan(&id, &userId, &restaurantId, &content, &good, &genre, &comment, &createdAt, &updatedAt, &deletedAt);
 	err != nil {
 		log.Printf("row.Scan()でerror: %v\n", err)
 		return
@@ -57,7 +57,7 @@ func (repo *PostsRepository) GetSelect(ctx context.Context, identifier int) (pos
 		Id: id,
 		UserId: userId,
 		RestaurantId: restaurantId,
-		Image: image,
+		Content: content,
 		Good: good,
 		Genre: genre,
 		Comment: comment,
@@ -82,7 +82,7 @@ func (repo *PostsRepository) GetSelectRIG(ctx context.Context, rid int, genre st
 			id int
 			userId int
 			restaurantId int
-			image string
+			content string
 			good int
 			genre string
 			comment string
@@ -90,14 +90,14 @@ func (repo *PostsRepository) GetSelectRIG(ctx context.Context, rid int, genre st
 			updatedAt sql.NullTime
 			deletedAt sql.NullTime
 		)
-		if err := rows.Scan(&id, &userId, &restaurantId, &image, &good, &genre, &comment, &createdAt, &updatedAt, &deletedAt);
+		if err := rows.Scan(&id, &userId, &restaurantId, &content, &good, &genre, &comment, &createdAt, &updatedAt, &deletedAt);
 			err != nil {
 			log.Printf("row.Scan()でerror: %v\n", err)
 			continue
 		}
 		post := model.PostsRIGResponse {
 			Id: id,
-			Image: image,
+			Content: content,
 			CreatedAt: createdAt,
 		}
 		log.Println(post.Id)
@@ -119,7 +119,7 @@ func (repo *PostsRepository) GetAll(ctx context.Context) (posts model.Posts, err
 			id int
 			userId int
 			restaurantId int
-			image string
+			content string
 			good int
 			genre string
 			comment string
@@ -127,7 +127,7 @@ func (repo *PostsRepository) GetAll(ctx context.Context) (posts model.Posts, err
 			updatedAt sql.NullTime
 			deletedAt sql.NullTime
 		)
-		if err := rows.Scan(&id, &userId, &restaurantId, &image, &good, &genre, &comment, &createdAt, &updatedAt, &deletedAt);
+		if err := rows.Scan(&id, &userId, &restaurantId, &content, &good, &genre, &comment, &createdAt, &updatedAt, &deletedAt);
 		err != nil {
 			log.Printf("row.Scan()でerror: %v\n", err)
 			continue
@@ -136,7 +136,7 @@ func (repo *PostsRepository) GetAll(ctx context.Context) (posts model.Posts, err
 			Id: id,
 			UserId: userId,
 			RestaurantId: restaurantId,
-			Image: image,
+			Content: content,
 			Good: good,
 			Genre: genre,
 			Comment: comment,
@@ -151,13 +151,13 @@ func (repo *PostsRepository) GetAll(ctx context.Context) (posts model.Posts, err
 
 func (repo *PostsRepository) Store(ctx context.Context, posting model.PostsRequest) (id int, err error) {
 	result, err := repo.ExecContext(ctx,
-		"insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (?, ?, ?, ?, ?, now())",
-		posting.UserId, posting.RestaurantId, posting.Image, posting.Genre, posting.Comment)
+		"insert into pbl_app1.post (user_id, restaurant_id, content, genre, comment, created_at) values (?, ?, ?, ?, ?, now())",
+		posting.UserId, posting.RestaurantId, posting.Content, posting.Genre, posting.Comment)
 	if err != nil {
 		return
 	}
-	log.Printf("user_id: %d, restaurant_id: %d, image: %s, genre: %s, comment: %s\n",
-		posting.UserId, posting.RestaurantId, posting.Image, posting.Genre, posting.Comment)
+	log.Printf("user_id: %d, restaurant_id: %d, content: %s, genre: %s, comment: %s\n",
+		posting.UserId, posting.RestaurantId, posting.Content, posting.Genre, posting.Comment)
 
 	id64, err := result.LastInsertId()
 	if err != nil {

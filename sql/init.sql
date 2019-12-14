@@ -6,17 +6,21 @@ create table if not exists pbl_app1.user (
     id         int          not null auto_increment primary key,
     name       varchar(50)  not null,
     password   varchar(100) not null,
-    created_at datetime,
+    gender     varchar(10)  not null,
+    birthday   date         not null,
+    state      boolean      not null default false,
+    point      int          not null default 0,
+    created_at datetime     not null,
     updated_at datetime,
     deleted_at datetime
 )ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 create table if not exists pbl_app1.restaurant (
-    id             int not null auto_increment primary key ,
+    id             int          not null auto_increment primary key,
     name           varchar(50)  not null,
     business_hours varchar(50)  not null,
     image          varchar(100) not null,
-    created_at     datetime,
+    created_at     datetime     not null,
     updated_at     datetime,
     deleted_at     datetime
 )ENGINE=INNODB DEFAULT CHARSET=utf8;
@@ -25,8 +29,7 @@ create table if not exists pbl_app1.recognize (
     id            int       not null auto_increment primary key,
     restaurant_id int       not null,
     user_id       int       not null,
-    created_at    datetime,
-    updated_at    datetime,
+    created_at    datetime  not null,
     deleted_at    datetime,
     constraint fk_recognize_restaurant_id
         foreign key (restaurant_id)
@@ -38,15 +41,31 @@ create table if not exists pbl_app1.recognize (
             on delete restrict on update restrict
 )ENGINE=INNODB DEFAULT CHARSET=utf8;
 
+create table if not exists pbl_app1.point (
+    id            int         not null auto_increment primary key,
+    restaurant_id int         not null,
+    user_id       int         not null,
+    transaction   varchar(10) not null,
+    created_at    datetime    not null,
+    constraint fk_point_restaurant_id
+        foreign key (restaurant_id)
+            references pbl_app1.restaurant (id)
+            on delete restrict on update restrict,
+    constraint fk_point_user_id
+        foreign key (user_id)
+            references pbl_app1.user (id)
+            on delete restrict on update restrict
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
+
 create table if not exists pbl_app1.post (
-    id            int not null auto_increment primary key,
-    user_id       int not null,
-    restaurant_id int not null,
-    image         varchar(100),
-    good          int default 0 not null,
-    genre         varchar(50) not null,
+    id            int           not null auto_increment primary key,
+    user_id       int           not null,
+    restaurant_id int           not null,
+    content       varchar(100)  not null,
+    good          int           not null default 0,
+    genre         varchar(50)   not null,
     comment       varchar(100),
-    created_at    datetime,
+    created_at    datetime      not null,
     updated_at    datetime,
     deleted_at    datetime,
     constraint fk_post_user_id
@@ -63,6 +82,7 @@ create table if not exists pbl_app1.good (
     id      int         not null auto_increment primary key,
     post_id int         not null,
     user_id int         not null,
+    state   boolean     not null default true,
     constraint fk_like_post_id
         foreign key (post_id)
             references pbl_app1.post (id)
@@ -89,26 +109,26 @@ insert into pbl_app1.restaurant (name, business_hours, image, created_at) values
 insert into pbl_app1.restaurant (name, business_hours, image, created_at) values ('備後屋', '19:00-01:00', 'https://storage.googleapis.com/pbl-lookin-storage/restaurant4.jpeg', now());
 
 # post table
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (1, 1, 'https://storage.googleapis.com/pbl-lookin-storage/post1_mood.jpeg', 'mood', '居心地がいい', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (2, 1, 'https://storage.googleapis.com/pbl-lookin-storage/post7_food.jpeg', 'food', '焼き鳥うまい', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (4, 1, 'https://storage.googleapis.com/pbl-lookin-storage/post2_drink.jpeg', 'drink', 'ビール最高！！', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (2, 1, 'https://storage.googleapis.com/pbl-lookin-storage/post4_dessert.jpeg', 'dessert', 'あまい---', now());
+insert into pbl_app1.post (user_id, restaurant_id, content, genre, comment, created_at) values (1, 1, 'https://storage.googleapis.com/pbl-lookin-storage/post1_mood.jpeg', 'mood', '居心地がいい', now());
+insert into pbl_app1.post (user_id, restaurant_id, content, genre, comment, created_at) values (2, 1, 'https://storage.googleapis.com/pbl-lookin-storage/post7_food.jpeg', 'food', '焼き鳥うまい', now());
+insert into pbl_app1.post (user_id, restaurant_id, content, genre, comment, created_at) values (4, 1, 'https://storage.googleapis.com/pbl-lookin-storage/post2_drink.jpeg', 'drink', 'ビール最高！！', now());
+insert into pbl_app1.post (user_id, restaurant_id, content, genre, comment, created_at) values (2, 1, 'https://storage.googleapis.com/pbl-lookin-storage/post4_dessert.jpeg', 'dessert', 'あまい---', now());
 
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (5, 2, 'https://storage.googleapis.com/pbl-lookin-storage/post8_food.jpeg', 'food', 'チーズ好きにはたまらない！', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (3, 2, 'https://storage.googleapis.com/pbl-lookin-storage/post11_dessert.jpeg', 'dessert', '抹茶がやばい！', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (4, 2, 'https://storage.googleapis.com/pbl-lookin-storage/post5_mood.jpeg', 'mood', 'お洒落', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (4, 2, 'https://storage.googleapis.com/pbl-lookin-storage/post3_drink.jpeg', 'drink', 'お酒LOVE', now());
+insert into pbl_app1.post (user_id, restaurant_id, content, genre, comment, created_at) values (5, 2, 'https://storage.googleapis.com/pbl-lookin-storage/post8_food.jpeg', 'food', 'チーズ好きにはたまらない！', now());
+insert into pbl_app1.post (user_id, restaurant_id, content, genre, comment, created_at) values (3, 2, 'https://storage.googleapis.com/pbl-lookin-storage/post11_dessert.jpeg', 'dessert', '抹茶がやばい！', now());
+insert into pbl_app1.post (user_id, restaurant_id, content, genre, comment, created_at) values (4, 2, 'https://storage.googleapis.com/pbl-lookin-storage/post5_mood.jpeg', 'mood', 'お洒落', now());
+insert into pbl_app1.post (user_id, restaurant_id, content, genre, comment, created_at) values (4, 2, 'https://storage.googleapis.com/pbl-lookin-storage/post3_drink.jpeg', 'drink', 'お酒LOVE', now());
 
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (1, 3, 'https://storage.googleapis.com/pbl-lookin-storage/post9_food.jpeg', 'food', '淡々タンタン、ナポリタン！！', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (1, 3, 'https://storage.googleapis.com/pbl-lookin-storage/post14_dessert.jpeg', 'dessert', 'パフェの断面がめっちゃ綺麗', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (5, 3, 'https://storage.googleapis.com/pbl-lookin-storage/post6_mood.jpeg', 'mood', 'ずっとここにいたい', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (2, 3, 'https://storage.googleapis.com/pbl-lookin-storage/post10_drink.jpeg', 'drink', 'ゆっくりと、、、ワイン', now());
+insert into pbl_app1.post (user_id, restaurant_id, content, genre, comment, created_at) values (1, 3, 'https://storage.googleapis.com/pbl-lookin-storage/post9_food.jpeg', 'food', '淡々タンタン、ナポリタン！！', now());
+insert into pbl_app1.post (user_id, restaurant_id, content, genre, comment, created_at) values (1, 3, 'https://storage.googleapis.com/pbl-lookin-storage/post14_dessert.jpeg', 'dessert', 'パフェの断面がめっちゃ綺麗', now());
+insert into pbl_app1.post (user_id, restaurant_id, content, genre, comment, created_at) values (5, 3, 'https://storage.googleapis.com/pbl-lookin-storage/post6_mood.jpeg', 'mood', 'ずっとここにいたい', now());
+insert into pbl_app1.post (user_id, restaurant_id, content, genre, comment, created_at) values (2, 3, 'https://storage.googleapis.com/pbl-lookin-storage/post10_drink.jpeg', 'drink', 'ゆっくりと、、、ワイン', now());
 
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (2, 4, 'https://storage.googleapis.com/pbl-lookin-storage/post12_mood.jpeg', 'mood', 'オシャレ', now());
-insert into pbl_app1.post (user_id, restaurant_id, image, genre, comment, created_at) values (3, 4, 'https://storage.googleapis.com/pbl-lookin-storage/post13_drink.jpeg', 'drink', '今日は、贅沢にシャンパン', now());
+insert into pbl_app1.post (user_id, restaurant_id, content, genre, comment, created_at) values (2, 4, 'https://storage.googleapis.com/pbl-lookin-storage/post12_mood.jpeg', 'mood', 'オシャレ', now());
+insert into pbl_app1.post (user_id, restaurant_id, content, genre, comment, created_at) values (3, 4, 'https://storage.googleapis.com/pbl-lookin-storage/post13_drink.jpeg', 'drink', '今日は、贅沢にシャンパン', now());
 
-update pbl_app1.post set image = 'https://storage.googleapis.com/pbl-lookin-storage/post10_drink.jpeg' where id = 10;
-update pbl_app1.post set image = 'https://storage.googleapis.com/pbl-lookin-storage/post13_drink.jpeg' where id = 13;
+update pbl_app1.post set content = 'https://storage.googleapis.com/pbl-lookin-storage/post10_drink.jpeg' where id = 10;
+update pbl_app1.post set content = 'https://storage.googleapis.com/pbl-lookin-storage/post13_drink.jpeg' where id = 13;
 
 # good table
 insert into pbl_app1.good (post_id, user_id) values (1, 1);

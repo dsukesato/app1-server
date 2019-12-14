@@ -41,10 +41,8 @@ func (i *RecognizeInteractor) RecognizeAll(ctx context.Context) (rec model.Rec, 
 	return
 }
 
-// uRegistryはuser Registryの略
 func (i *RecognizeInteractor) Add(ctx context.Context, reRequest model.PostRecognizeRequest) (reRegistry model.Recognize, err error) {
 	id, err := i.RecognizeRepository.Store(ctx, reRequest)
-
 
 	reRegistry, err = i.RecognizeRepository.GetSelect(ctx, id)
 
