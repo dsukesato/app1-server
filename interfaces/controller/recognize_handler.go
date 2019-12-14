@@ -37,7 +37,7 @@ func (c *RecognizeController) RecognizeIndexHandler(w http.ResponseWriter, r *ht
 	rec, err := c.Interactor.RecognizeAll(ctx)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -61,7 +61,7 @@ func (c *RecognizeController) RecognizeIdHandler(w http.ResponseWriter, r *http.
 	recognize, err := c.Interactor.RecognizeById(ctx, id)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -85,7 +85,7 @@ func (c *RecognizeController) RecognizeUIdHandler(w http.ResponseWriter, r *http
 	recognize, err := c.Interactor.RecognizeByUId(ctx, uid)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -137,7 +137,7 @@ func (c *RecognizeController) RecognizeSendHandler(w http.ResponseWriter, r *htt
 	recognize, err := c.Interactor.Add(ctx, request)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

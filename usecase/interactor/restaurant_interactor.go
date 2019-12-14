@@ -31,6 +31,11 @@ func (i *RestaurantsInteractor) RestaurantsAll(ctx context.Context) (restaurants
 func (i *RestaurantsInteractor) Add(ctx context.Context, rRequest model.RestaurantRequest) (rRegistry model.Restaurant, err error) {
 	id, err := i.RestaurantsRepository.Store(ctx, rRequest)
 
+	if err != nil {
+		//log.Printf("err: %v\n", err)
+		return
+	}
+
 	rRegistry, err = i.RestaurantsRepository.GetSelectById(ctx, id)
 
 	return

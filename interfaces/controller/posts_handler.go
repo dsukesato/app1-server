@@ -40,7 +40,7 @@ func (c *PostsController) PostsIndexHandler(w http.ResponseWriter, r *http.Reque
 	posts, err := c.Interactor.PostsAll(ctx)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -68,7 +68,7 @@ func (c *PostsController) PostsIdHandler(w http.ResponseWriter, r *http.Request)
 	post, err := c.Interactor.PostsById(ctx, id)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -94,7 +94,7 @@ func (c *PostsController) PostsRIGHandler(w http.ResponseWriter, r *http.Request
 	post, err := c.Interactor.PostsByRIG(ctx, rid, genre)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -123,7 +123,7 @@ func (c *PostsController) PostsISendHandler(w http.ResponseWriter, r *http.Reque
 	err := json.Unmarshal(b, &jsonBody)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatal(err)
+		log.Printf("err: %v\n", err)
 	}
 
 	if jsonBody.Genre != "mood" && jsonBody.Genre != "food" && jsonBody.Genre != "drink" && jsonBody.Genre != "dessert" {
@@ -133,7 +133,9 @@ func (c *PostsController) PostsISendHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	formFile, _, err := r.FormFile("image")
-	handleError(err)
+	if err != nil {
+		log.Printf("err: %v\n", err)
+	}
 	defer formFile.Close()
 
 	ctx := r.Context()
@@ -154,12 +156,13 @@ func (c *PostsController) PostsISendHandler(w http.ResponseWriter, r *http.Reque
 
 	// uploadされた画像をgcsのwriterにコピー
 	_, err = io.Copy(writer, formFile)
-	handleError(err)
+	if err != nil {
+		log.Printf("err: %v\n", err)
+	}
 
 	if err := writer.Close(); err != nil {
 		log.Printf("failed to close gcs writer : %v", err)
 	}
-	w.WriteHeader(http.StatusCreated)
 
 	request := model.PostsRequest{}
 	request.RestaurantId = jsonBody.RestaurantId
@@ -170,8 +173,10 @@ func (c *PostsController) PostsISendHandler(w http.ResponseWriter, r *http.Reque
 
 	posts, err := c.Interactor.Add(ctx, request)
 
+	w.WriteHeader(http.StatusCreated)
+
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -210,7 +215,9 @@ func (c *PostsController) PostsMSendHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	formFile, _, err := r.FormFile("movie")
-	handleError(err)
+	if err != nil {
+		log.Printf("err: %v\n", err)
+	}
 	defer formFile.Close()
 
 	ctx := r.Context()
@@ -231,7 +238,9 @@ func (c *PostsController) PostsMSendHandler(w http.ResponseWriter, r *http.Reque
 
 	// uploadされた画像をgcsのwriterにコピー
 	_, err = io.Copy(writer, formFile)
-	handleError(err)
+	if err != nil {
+		log.Printf("err: %v\n", err)
+	}
 
 	if err := writer.Close(); err != nil {
 		log.Printf("failed to close gcs writer : %v", err)
@@ -249,7 +258,7 @@ func (c *PostsController) PostsMSendHandler(w http.ResponseWriter, r *http.Reque
 	w.WriteHeader(http.StatusCreated)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

@@ -96,7 +96,9 @@ func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r 
 	}
 
 	formFile, _, err := r.FormFile("image")
-	handleError(err)
+	if err != nil {
+		log.Printf("err: %v\n", err)
+	}
 	defer formFile.Close()
 
 	ctx := r.Context()
@@ -117,7 +119,9 @@ func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r 
 
 	// uploadされた画像をgcsのwriterにコピー
 	_, err = io.Copy(writer, formFile)
-	handleError(err)
+	if err != nil {
+		log.Printf("err: %v\n", err)
+	}
 
 	if err := writer.Close(); err != nil {
 		log.Printf("failed to close gcs writer : %v", err)
@@ -140,11 +144,5 @@ func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r 
 	if err = json.NewEncoder(w).Encode(posts); err != nil {
 		http.Error(w, "Internal Server Error", 500)
 		return
-	}
-}
-
-func handleError(err error) {
-	if err != nil {
-		log.Fatal(err)
 	}
 }

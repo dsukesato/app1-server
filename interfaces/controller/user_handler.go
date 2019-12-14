@@ -38,7 +38,7 @@ func (c *UsersController) UsersIndexHandler(w http.ResponseWriter, r *http.Reque
 	posts, err := c.Interactor.UsersAll(ctx)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -66,7 +66,7 @@ func (c *UsersController) UsersIdHandler(w http.ResponseWriter, r *http.Request)
 	post, err := c.Interactor.UserById(ctx, id)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -177,7 +177,7 @@ func (c *UsersController) SignUpHandler(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusCreated)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -239,7 +239,6 @@ func (c *UsersController) SignInHandler(w http.ResponseWriter, r *http.Request) 
 	siBool, err := c.Interactor.SignIn(ctx, request)
 
 	if err != nil {
-		//log.Fatal(err)
 		log.Printf("err: %v\n", err)
 	}
 

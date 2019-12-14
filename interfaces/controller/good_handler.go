@@ -37,7 +37,7 @@ func (c *GoodController) GoodIndexHandler(w http.ResponseWriter, r *http.Request
 	goods, err := c.Interactor.GoodAll(ctx)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -61,7 +61,7 @@ func (c *GoodController) GoodIdHandler(w http.ResponseWriter, r *http.Request) {
 	good, err := c.Interactor.GoodById(ctx, id)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -113,7 +113,7 @@ func (c *GoodController) GoodSendHandler(w http.ResponseWriter, r *http.Request)
 	good, err := c.Interactor.Add(ctx, request)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("err: %v\n", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

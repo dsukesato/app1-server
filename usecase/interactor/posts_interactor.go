@@ -35,6 +35,11 @@ func (i *PostsInteractor) PostsAll(ctx context.Context) (posts model.Posts, err 
 func (i *PostsInteractor) Add(ctx context.Context, posting model.PostsRequest) (posted model.Post, err error) {
 	id, err := i.PostsRepository.Store(ctx, posting)
 
+	if err != nil {
+		//log.Printf("err: %v\n", err)
+		return
+	}
+
 	posted, err = i.PostsRepository.GetSelect(ctx, id)
 
 	return

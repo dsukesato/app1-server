@@ -20,13 +20,14 @@ func (i *RecognizeInteractor) RecognizeById(ctx context.Context, identifier int)
 func (i *RecognizeInteractor) RecognizeByUId(ctx context.Context, uid int) (rrs model.RecResponse, err error) {
 	rids, err := i.RecognizeRepository.GetSelectUID(ctx, uid)
 	if err != nil {
-		log.Fatal(err)
+		//log.Printf("err: %v\n", err)
+		return
 	}
 
 	for _, rid := range rids {
 		rr, err := i.RecognizeRepository.GetSelectRID(ctx, rid)
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("err: %v\n", err)
 		}
 		rrs = append(rrs, rr)
 	}
