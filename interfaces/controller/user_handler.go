@@ -2,7 +2,7 @@ package controller
 
 import (
 	"encoding/json"
-	"github.com/dsukesato/go13/pbl/app1-server/domain/model"
+	"github.com/dsukesato/go13/pbl/app1-server/entity/model"
 	"github.com/dsukesato/go13/pbl/app1-server/interfaces/database"
 	"github.com/gorilla/mux"
 	"io"

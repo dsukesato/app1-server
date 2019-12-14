@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/dsukesato/go13/pbl/app1-server/domain/model"
+	"github.com/dsukesato/go13/pbl/app1-server/entity/model"
 	"github.com/dsukesato/go13/pbl/app1-server/interfaces/database"
 	usecase "github.com/dsukesato/go13/pbl/app1-server/usecase/interactor"
 	"github.com/gorilla/mux"
