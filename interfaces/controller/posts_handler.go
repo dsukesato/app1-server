@@ -236,7 +236,6 @@ func (c *PostsController) PostsMSendHandler(w http.ResponseWriter, r *http.Reque
 	if err := writer.Close(); err != nil {
 		log.Printf("failed to close gcs writer : %v", err)
 	}
-	w.WriteHeader(http.StatusCreated)
 
 	request := model.PostsRequest{}
 	request.RestaurantId = jsonBody.RestaurantId
@@ -246,6 +245,8 @@ func (c *PostsController) PostsMSendHandler(w http.ResponseWriter, r *http.Reque
 	request.Image = fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucket, obj)
 
 	posts, err := c.Interactor.Add(ctx, request)
+
+	w.WriteHeader(http.StatusCreated)
 
 	if err != nil {
 		log.Fatal(err)

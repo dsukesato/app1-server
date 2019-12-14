@@ -5,6 +5,7 @@ import (
 	"github.com/dsukesato/go13/pbl/app1-server/entity/model"
 	"github.com/dsukesato/go13/pbl/app1-server/interfaces/database"
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/bcrypt"
 	"io"
 	"log"
 	"net/http"
@@ -75,6 +76,7 @@ func (c *UsersController) UsersIdHandler(w http.ResponseWriter, r *http.Request)
 	}
 }
 
+// SignUpHandlerと同じ機能
 func (c *UsersController) UsersSendHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/Lookin/users/" {
 		http.NotFound(w, r)
@@ -112,9 +114,12 @@ func (c *UsersController) UsersSendHandler(w http.ResponseWriter, r *http.Reques
 
 	request := model.PostUserRequest{}
 	request.Name = jsonBody.Name
-	request.Password = jsonBody.Password
+	passHash, err := PasswordHash(jsonBody.Password)
+	request.Password = passHash
 
 	user, err := c.Interactor.Add(ctx, request)
+
+	w.WriteHeader(http.StatusCreated)
 
 	if err != nil {
 		log.Fatal(err)
@@ -122,6 +127,132 @@ func (c *UsersController) UsersSendHandler(w http.ResponseWriter, r *http.Reques
 
 	w.Header().Set("Content-Type", "application/json")
 	if err = json.NewEncoder(w).Encode(user); err != nil {
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+}
+
+func (c *UsersController) SignUpHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/Lookin/sign_up/" {
+		http.NotFound(w, r)
+		return
+	}
+	ctx := r.Context()
+
+	if r.Header.Get("Content-Type") != "application/json" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	//To allocate slice for request body
+	length, err := strconv.Atoi(r.Header.Get("Content-Length"))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	//Read body data to parse json
+	body := make([]byte, length)
+	length, err = r.Body.Read(body)
+	if err != nil && err != io.EOF {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	//parse json
+	var jsonBody = new(model.PostUserRequest)
+	err = json.Unmarshal(body[:length], &jsonBody) // json -> Go Object
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	request := model.PostUserRequest{}
+	request.Name = jsonBody.Name
+	passHash, err := PasswordHash(jsonBody.Password)
+	request.Password = passHash
+
+	user, err := c.Interactor.Add(ctx, request)
+
+	w.WriteHeader(http.StatusCreated)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(w).Encode(user); err != nil {
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+}
+
+// passwordのハッシュ化
+func PasswordHash(pw string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(pw), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), err
+}
+
+func (c *UsersController) SignInHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/Lookin/sign_in/" {
+		http.NotFound(w, r)
+		return
+	}
+	ctx := r.Context()
+
+	if r.Header.Get("Content-Type") != "application/json" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	//To allocate slice for request body
+	length, err := strconv.Atoi(r.Header.Get("Content-Length"))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	//Read body data to parse json
+	body := make([]byte, length)
+	length, err = r.Body.Read(body)
+	if err != nil && err != io.EOF {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	//parse json
+	var jsonBody = new(model.SignInRequest)
+	err = json.Unmarshal(body[:length], &jsonBody) // json -> Go Object
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	request := model.SignInRequest{}
+	request.Id = jsonBody.Id
+	request.Password = jsonBody.Password
+
+	// siBoolはsignInが成功しているかを判定するbool値
+	siBool, err := c.Interactor.SignIn(ctx, request)
+
+	if err != nil {
+		//log.Fatal(err)
+		log.Printf("err: %v\n", err)
+	}
+
+	response := model.SignInResponse{}
+	response.SignInBool = siBool
+	if siBool {
+		response.Message = "パスワード認証に成功しました"
+	} else {
+		response.Message = "パスワード認証に失敗しました"
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}

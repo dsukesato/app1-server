@@ -47,6 +47,24 @@ func (repo *UsersRepository) GetSelect(ctx context.Context, identifier int) (use
 	return
 }
 
+func (repo *UsersRepository) GetPass(ctx context.Context, identifier int) (pass string, err error) {
+	row, err := repo.QueryContext(ctx, "select password from user where id = ?", identifier)
+	if err != nil {
+		log.Printf("Could not scan result with GetPass: %v", err)
+		return
+	}
+	defer row.Close()
+
+	row.Next()
+	if err = row.Scan(&pass);
+		err != nil {
+		log.Printf("row.Scan()でerror: %v\n", err)
+		return
+	}
+
+	return
+}
+
 func (repo *UsersRepository) GetAll(ctx context.Context) (users model.Users, err error){
 	rows, err := repo.QueryContext(ctx, "select * from user")
 	if err != nil {

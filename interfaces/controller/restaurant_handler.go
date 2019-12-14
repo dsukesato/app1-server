@@ -122,13 +122,15 @@ func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r 
 	if err := writer.Close(); err != nil {
 		log.Printf("failed to close gcs writer : %v", err)
 	}
-	w.WriteHeader(http.StatusCreated)
 
 	request := model.RestaurantRequest{}
 	request.Name = jsonBody.Name
 	request.BusinessHours = jsonBody.BusinessHours
 	request.Image = fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucket, obj)
+
 	posts, err := c.Interactor.Add(ctx, request)
+
+	w.WriteHeader(http.StatusCreated)
 
 	if err != nil {
 		log.Fatal(err)
