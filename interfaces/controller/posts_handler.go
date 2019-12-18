@@ -12,6 +12,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	usecase "github.com/dsukesato/go13/pbl/app1-server/usecase/interactor"
 )
@@ -201,12 +202,15 @@ func (c *PostsController) PostsMSendHandler(w http.ResponseWriter, r *http.Reque
 
 	var jsonBody model.PostPostsRequest
 
-	b := []byte(formValue)
-	err := json.Unmarshal(b, &jsonBody)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatal(err)
+	//b := []byte(formValue)
+	if err := json.NewDecoder(strings.NewReader(formValue)).Decode(&jsonBody); err != nil {
+		log.Printf("json decode err: %v\n", err)
 	}
+	//err := json.Unmarshal(b, &jsonBody)
+	//if err != nil {
+	//	w.WriteHeader(http.StatusInternalServerError)
+	//	log.Fatal(err)
+	//}
 
 	if jsonBody.Genre != "mood" && jsonBody.Genre != "food" && jsonBody.Genre != "drink" && jsonBody.Genre != "dessert" {
 		log.Printf("Not the desired request")
@@ -216,7 +220,7 @@ func (c *PostsController) PostsMSendHandler(w http.ResponseWriter, r *http.Reque
 
 	formFile, _, err := r.FormFile("movie")
 	if err != nil {
-		log.Printf("err: %v\n", err)
+		log.Printf("err in formFile: %v\n", err)
 	}
 	defer formFile.Close()
 
