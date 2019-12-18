@@ -120,12 +120,15 @@ func (c *PostsController) PostsISendHandler(w http.ResponseWriter, r *http.Reque
 
 	var jsonBody model.PostPostsRequest
 
-	b := []byte(formValue)
-	err := json.Unmarshal(b, &jsonBody)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Printf("err: %v\n", err)
+	if err := json.NewDecoder(strings.NewReader(formValue)).Decode(&jsonBody); err != nil {
+		log.Printf("json decode err: %v\n", err)
 	}
+	//b := []byte(formValue)
+	//err := json.Unmarshal(b, &jsonBody)
+	//if err != nil {
+	//	w.WriteHeader(http.StatusInternalServerError)
+	//	log.Printf("err: %v\n", err)
+	//}
 
 	if jsonBody.Genre != "mood" && jsonBody.Genre != "food" && jsonBody.Genre != "drink" && jsonBody.Genre != "dessert" {
 		log.Printf("Not the desired request")
@@ -135,7 +138,7 @@ func (c *PostsController) PostsISendHandler(w http.ResponseWriter, r *http.Reque
 
 	formFile, _, err := r.FormFile("image")
 	if err != nil {
-		log.Printf("err: %v\n", err)
+		log.Printf("err in formFile: %v\n", err)
 	}
 	defer formFile.Close()
 
