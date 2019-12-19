@@ -146,3 +146,76 @@ func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r 
 		return
 	}
 }
+
+func (c *RestaurantsController) RestaurantsUpdateHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/Lookin/restaurants/" {
+		http.NotFound(w, r)
+		return
+	}
+
+	//chk := true
+
+	formValue := r.FormValue("json")
+
+	var jsonBody model.PutRestaurantRequest
+
+	b := []byte(formValue)
+	err := json.Unmarshal(b, &jsonBody)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Fatal(err)
+	}
+
+	request := model.PutRestaurantRequest{}
+	request.Id = jsonBody.Id
+	request.Name = jsonBody.Name
+	request.BusinessHours = jsonBody.BusinessHours
+
+	formFile, _, err := r.FormFile("image")
+	if err != nil {
+		log.Printf("err: %v\n", err)
+	}
+	defer formFile.Close()
+
+	ctx := r.Context()
+
+	bucket := "pbl-lookin-storage" // GCSバケット名
+	obj := fmt.Sprintf("restaurants/restaurant%d.jpeg", request.Id)
+	bCtx := context.Background()
+
+	client, err := storage.NewClient(bCtx)
+	if err != nil {
+		log.Printf("failed to create gcs client : %v", err)
+	}
+
+	// GCS writer
+	writer := client.Bucket(bucket).Object(obj).NewWriter(bCtx)
+	writer.ContentType = "image/jpeg" // 任意のContentTypeに置き換える
+
+	// uploadされた画像をgcsのwriterにコピー
+	_, err = io.Copy(writer, formFile)
+	if err != nil {
+		log.Printf("err in io.Copy: %v\n", err)
+	}
+
+	if err := writer.Close(); err != nil {
+		log.Printf("failed to close gcs writer : %v", err)
+	}
+
+	request.Image = fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucket, obj)
+
+	restaurant, err := c.Interactor.Update(ctx, request)
+
+	if err != nil {
+		log.Printf("err: %v\n", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+
+	w.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(w).Encode(restaurant); err != nil {
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+}

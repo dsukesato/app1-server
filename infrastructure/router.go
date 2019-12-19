@@ -27,6 +27,7 @@ func Serve() {
 	r.HandleFunc("/Lookin/restaurants/", rc.RestaurantsIndexHandler).Methods("GET")
 	r.HandleFunc("/Lookin/restaurants/{id}", rc.RestaurantsIdHandler).Methods("GET")
 	r.HandleFunc("/Lookin/restaurants/", rc.RestaurantsSendHandler).Methods("POST")
+	r.HandleFunc("/Lookin/restaurants/", rc.RestaurantsUpdateHandler).Methods("PUT")
 
 	r.HandleFunc("/Lookin/posts/", pc.PostsIndexHandler).Methods("GET")
 	r.HandleFunc("/Lookin/posts/{id}", pc.PostsIdHandler).Methods("GET")

@@ -33,3 +33,20 @@ type PostRestaurantResponse struct {
 	BusinessHours string `json:"business_hours"`
 	Image         string `json:"image"`
 }
+
+type PutRestaurantRequest struct {
+	Id            int    `json:"id"`
+	Name          string `json:"name"`
+	BusinessHours string `json:"business_hours"`
+	Image         string `json:"image"`
+}
+
+type PutRestaurantResponse struct {
+	Id            int          `json:"id"`
+	Name          string       `json:"name"`
+	BusinessHours string       `json:"business_hours"`
+	Image         string       `json:"image"`
+	CreatedAt     sql.NullTime `json:"created_at"`
+	UpdatedAt     sql.NullTime `json:"updated_at"`
+	DeletedAt     sql.NullTime `json:"deleted_at"`
+}

@@ -182,7 +182,7 @@ func (c *UsersController) UsersUpdateHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 
 	w.Header().Set("Content-Type", "application/json")
 	if err = json.NewEncoder(w).Encode(user); err != nil {

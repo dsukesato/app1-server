@@ -25,7 +25,7 @@ func (repo *RestaurantsRepository) GetLastId(ctx context.Context) (identifier in
 	return
 }
 
-func (repo *RestaurantsRepository) GetSelectById(ctx context.Context, identifier int) (restaurant model.Restaurant, err error) {
+func (repo *RestaurantsRepository) GetSelect(ctx context.Context, identifier int) (restaurant model.Restaurant, err error) {
 	row, err := repo.QueryContext(ctx, "select * from restaurant where id = ?", identifier)
 	if err != nil {
 		log.Printf("Could not query result with GetSelect: %v", err)
@@ -115,6 +115,34 @@ func (repo *RestaurantsRepository) Store(ctx context.Context, rRegistry model.Re
 		return
 	}
 	id = int(id64)
+	log.Printf("id: %d\n", id)
+
+	return
+}
+
+func (repo *RestaurantsRepository) Change(ctx context.Context, request model.PutRestaurantRequest) (id int, err error) {
+	_, err = repo.ExecContext(ctx,
+		"update pbl_app1.restaurant set name=?, business_hours=?, image=?, updated_at=now() where id=?",
+		request.Name, request.BusinessHours, request.Image, request.Id)
+	if err != nil {
+		return
+	}
+	log.Printf("name: %s, business_hours: %s, image: %s\n",
+		request.Name, request.BusinessHours, request.Image)
+
+	row, err := repo.QueryContext(ctx, "select id from restaurant where id = ?", request.Id)
+	if err != nil {
+		log.Printf("Could not scan result with GetAll: %v", err)
+		return
+	}
+	defer row.Close()
+
+	row.Next()
+	if err = row.Scan(&id);
+		err != nil {
+		log.Printf("row.Scan()でerror: %v\n", err)
+	}
+	//id = int(id64)
 	log.Printf("id: %d\n", id)
 
 	return
