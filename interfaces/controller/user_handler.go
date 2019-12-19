@@ -133,6 +133,64 @@ func (c *UsersController) UsersSendHandler(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+func (c *UsersController) UsersUpdateHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/Lookin/users/" {
+		http.NotFound(w, r)
+		return
+	}
+	ctx := r.Context()
+
+	if r.Header.Get("Content-Type") != "application/json" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	//To allocate slice for request body
+	length, err := strconv.Atoi(r.Header.Get("Content-Length"))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	//Read body data to parse json
+	body := make([]byte, length)
+	length, err = r.Body.Read(body)
+	if err != nil && err != io.EOF {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	//parse json
+	var jsonBody = new(model.PutUserRequest)
+	err = json.Unmarshal(body[:length], &jsonBody) // json -> Go Object
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	request := model.PutUserRequest{}
+	request.Id = jsonBody.Id
+	request.Name = jsonBody.Name
+	request.Password = jsonBody.Password
+	request.Gender = jsonBody.Gender
+	request.BirthDay = jsonBody.BirthDay
+
+	user, err := c.Interactor.Update(ctx, request)
+
+	if err != nil {
+		log.Printf("err: %v\n", err)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+
+	w.Header().Set("Content-Type", "application/json")
+	if err = json.NewEncoder(w).Encode(user); err != nil {
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+}
+
 func (c *UsersController) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/Lookin/sign_up/" {
 		http.NotFound(w, r)

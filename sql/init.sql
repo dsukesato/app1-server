@@ -130,6 +130,8 @@ insert into pbl_app1.post (user_id, restaurant_id, content, genre, comment, crea
 update pbl_app1.post set content = 'https://storage.googleapis.com/pbl-lookin-storage/post10_drink.jpeg' where id = 10;
 update pbl_app1.post set content = 'https://storage.googleapis.com/pbl-lookin-storage/post13_drink.jpeg' where id = 13;
 
+update pbl_app1.user set name='sasa', password='update_test', gender='woman', birthday=cast('19981006' as date), updated_at=now() where id=1;
+
 # good table
 insert into pbl_app1.good (post_id, user_id) values (1, 1);
 insert into pbl_app1.good (post_id, user_id) values (1, 2);

@@ -26,9 +26,31 @@ type PostUserRequest struct {
 	BirthDay string `json:"birthday"`
 }
 
-type PostUsersResponse struct {
+type PostUserResponse struct {
 	Id        int          `json:"id"`
 	Name      string       `json:"name"`
+	Password  string       `json:"password"`
+	Gender    string       `json:"gender"`
+	BirthDay  string       `json:"birthday"`
+	State     bool         `json:"state"`
+	Point     int          `json:"point"`
+	CreatedAt sql.NullTime `json:"created_at"`
+	UpdatedAt sql.NullTime `json:"updated_at"`
+	DeletedAt sql.NullTime `json:"deleted_at"`
+}
+
+type PutUserRequest struct {
+	Id       int    `json:"id"`
+	Name     string `json:"name"`
+	Password string `json:"password"`
+	Gender   string `json:"gender"`
+	BirthDay string `json:"birthday"`
+}
+
+type PutUserResponse struct {
+	Id        int          `json:"id"`
+	Name      string       `json:"name"`
+	Password  string       `json:"password"`
 	Gender    string       `json:"gender"`
 	BirthDay  string       `json:"birthday"`
 	State     bool         `json:"state"`

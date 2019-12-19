@@ -10,4 +10,5 @@ type UsersRepository interface {
 	GetSelect(context.Context, int) (model.User, error)
 	GetPass(context.Context, int) (string, error)
 	Store(context.Context, model.PostUserRequest) (int, error)
+	Change(context.Context, model.PutUserRequest) (int, error)
 }

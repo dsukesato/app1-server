@@ -34,7 +34,7 @@ func (repo *UsersRepository) GetSelect(ctx context.Context, identifier int) (use
 
 	row.Next()
 	if err = row.Scan(&id, &name, &password, &gender, &birthday, &state, &point, &createdAt, &updatedAt, &deletedAt);
-		err != nil {
+	err != nil {
 		log.Printf("row.Scan()でerror: %v\n", err)
 		return
 	}
@@ -131,6 +131,34 @@ func (repo *UsersRepository) Store(ctx context.Context, uRegistry model.PostUser
 		return
 	}
 	id = int(id64)
+	log.Printf("id: %d\n", id)
+
+	return
+}
+
+func (repo *UsersRepository) Change(ctx context.Context, request model.PutUserRequest) (id int, err error) {
+	_, err = repo.ExecContext(ctx,
+		"update pbl_app1.user set name=?, password=?, gender=?, birthday=cast(? as date), updated_at=now() where id=?",
+		request.Name, request.Password, request.Gender, request.BirthDay, request.Id)
+	if err != nil {
+		return
+	}
+	log.Printf("name: %s, password: %s, gender: %s, birthday: %s\n",
+		request.Name, request.Password, request.Gender, request.BirthDay)
+
+	row, err := repo.QueryContext(ctx, "select id from user where id = ?", request.Id)
+	if err != nil {
+		log.Printf("Could not scan result with GetAll: %v", err)
+		return
+	}
+	defer row.Close()
+
+	row.Next()
+	if err = row.Scan(&id);
+	err != nil {
+		log.Printf("row.Scan()でerror: %v\n", err)
+	}
+	//id = int(id64)
 	log.Printf("id: %d\n", id)
 
 	return

@@ -38,6 +38,7 @@ func Serve() {
 	r.HandleFunc("/Lookin/users/", uc.UsersIndexHandler).Methods("GET")
 	r.HandleFunc("/Lookin/users/{id}", uc.UsersIdHandler).Methods("GET")
 	r.HandleFunc("/Lookin/users/", uc.UsersSendHandler).Methods("POST")
+	r.HandleFunc("/Lookin/users/", uc.UsersUpdateHandler).Methods("PUT")
 	r.HandleFunc("/Lookin/sign_up/", uc.SignUpHandler).Methods("POST")
 	r.HandleFunc("/Lookin/sign_in/", uc.SignInHandler).Methods("POST")
 
