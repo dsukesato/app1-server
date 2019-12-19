@@ -47,6 +47,13 @@ type PostPostsResponse struct {
 	DeletedAt    sql.NullTime `json:"deleted_at"`
 }
 
+type PostPostsTestResponse struct {
+	UserId       int          `json:"user_id"`
+	RestaurantId int          `json:"restaurant_id"`
+	Genre        string       `json:"genre"`
+	Comment      string       `json:"comment"`
+}
+
 type PostsRIGResponse struct {
 	Id           int          `json:"id"`
 	Content      string       `json:"content"`

@@ -105,6 +105,47 @@ func (c *PostsController) PostsRIGHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
+func (c *PostsController) PostsISendTestHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/Lookin/posts/image/test/" {
+		http.NotFound(w, r)
+		return
+	}
+
+	//if r.Header.Get("Content-Type") != "application/json" {
+	//	w.WriteHeader(http.StatusBadRequest)
+	//	return
+	//}
+
+	formValue := r.FormValue("json")
+
+	var jsonBody model.PostPostsRequest
+
+	if err := json.NewDecoder(strings.NewReader(formValue)).Decode(&jsonBody); err != nil {
+		log.Printf("json decode err: %v\n", err)
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+	if jsonBody.Genre != "mood" && jsonBody.Genre != "food" && jsonBody.Genre != "drink" && jsonBody.Genre != "dessert" {
+		log.Printf("Not the desired request")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	post := model.PostPostsTestResponse{}
+	post.RestaurantId = jsonBody.RestaurantId
+	post.UserId = jsonBody.UserId
+	post.Genre = jsonBody.Genre
+	post.Comment = jsonBody.Comment
+
+	w.WriteHeader(http.StatusCreated)
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(post); err != nil {
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+}
+
 func (c *PostsController) PostsISendHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/Lookin/posts/image/" {
 		http.NotFound(w, r)

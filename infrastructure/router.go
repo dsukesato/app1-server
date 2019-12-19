@@ -35,6 +35,7 @@ func Serve() {
 	r.HandleFunc("/Lookin/posts/restaurant_id:{restaurant_id}/genre:{genre}", pc.PostsRIGHandler).Methods("GET")
 	r.HandleFunc("/Lookin/posts/image/", pc.PostsISendHandler).Methods("POST")
 	r.HandleFunc("/Lookin/posts/movie/", pc.PostsMSendHandler).Methods("POST")
+	r.HandleFunc("/Lookin/posts/image/test/", pc.PostsISendTestHandler).Methods("POST")
 
 	r.HandleFunc("/Lookin/users/", uc.UsersIndexHandler).Methods("GET")
 	r.HandleFunc("/Lookin/users/{id}", uc.UsersIdHandler).Methods("GET")
