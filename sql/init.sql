@@ -131,6 +131,7 @@ update pbl_app1.post set content = 'https://storage.googleapis.com/pbl-lookin-st
 update pbl_app1.post set content = 'https://storage.googleapis.com/pbl-lookin-storage/post13_drink.jpeg' where id = 13;
 
 update pbl_app1.user set name='sasa', password='update_test', gender='woman', birthday=cast('19981006' as date), updated_at=now() where id=1;
+update pbl_app1.post set good = good + 1 where id = 1;
 
 # good table
 insert into pbl_app1.good (post_id, user_id) values (1, 1);
