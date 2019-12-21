@@ -35,6 +35,7 @@ func Serve() {
 	r.HandleFunc("/Lookin/posts/restaurant_id:{restaurant_id}/genre:{genre}", pc.PostsRIGHandler).Methods("GET")
 	r.HandleFunc("/Lookin/posts/image/", pc.PostsISendHandler).Methods("POST")
 	r.HandleFunc("/Lookin/posts/movie/", pc.PostsMSendHandler).Methods("POST")
+	// client test用
 	r.HandleFunc("/Lookin/posts/image/test/", pc.PostsISendTestHandler).Methods("POST")
 
 	r.HandleFunc("/Lookin/users/", uc.UsersIndexHandler).Methods("GET")
@@ -52,6 +53,7 @@ func Serve() {
 	r.HandleFunc("/Lookin/good/", gc.GoodIndexHandler).Methods("GET")
 	r.HandleFunc("/Lookin/good/{id}", gc.GoodIdHandler).Methods("GET")
 	r.HandleFunc("/Lookin/good/", gc.GoodSendHandler).Methods("POST")
+	r.HandleFunc("/Lookin/good/", gc.GoodUpdateHandler).Methods("PUT")
 
 	r.HandleFunc("/Lookin/point/", pntc.PointIndexHandler).Methods("GET")
 	r.HandleFunc("/Lookin/point/{id}", pntc.PointIdHandler).Methods("GET")

@@ -42,30 +42,73 @@ func (repo *GoodRepository) GetSelect(ctx context.Context, identifier int) (good
 	return
 }
 
+func (repo *GoodRepository) GetId(ctx context.Context, pid int, uid int) (id int, err error) {
+	row, err := repo.QueryContext(ctx, "select id from good where post_id = ? and user_id = ?", pid, uid)
+	if err != nil {
+		log.Printf("Could not scan result with GetSelect: %v", err)
+		return
+	}
+	defer row.Close()
+
+	row.Next()
+	if err = row.Scan(&id);
+		err != nil {
+		log.Printf("row.Scan()でerror: %v with GetIdt\n", err)
+		return
+	}
+	return
+}
+
+func (repo *GoodRepository) GetGood(ctx context.Context, identifier int) (id int, err error) {
+	row, err := repo.QueryContext(ctx, "select post_id from good where id = ?", identifier)
+	if err != nil {
+		log.Printf("Could not scan result with GetSelect: %v", err)
+		return
+	}
+	defer row.Close()
+
+	var pId int
+	row.Next()
+	if err = row.Scan(&pId); err != nil {
+		log.Printf("row.Scan()でerror: %v with GetGood\n", err)
+		return
+	}
+	row, err = repo.QueryContext(ctx, "select good from post where id = ?", pId)
+	if err != nil {
+		log.Printf("Could not scan result with GetSelect: %v", err)
+		return
+	}
+	defer row.Close()
+
+	row.Next()
+	if err = row.Scan(&id); err != nil {
+		log.Printf("row.Scan()でerror: %v with GetGood\n", err)
+		return
+	}
+	return
+}
+
 func (repo *GoodRepository) GetSelectPUId(ctx context.Context, pid int , uid int) (b bool) {
-	row, err := repo.QueryContext(ctx, "select * from good where post_id = ? and user_id = ?", pid, uid)
+	row, err := repo.QueryContext(ctx, "select count(*) from good where post_id = ? and user_id = ?", pid, uid)
 	if err != nil {
 		log.Printf("Could not scan result with GetSelectPUId: %v", err)
 		return
 	}
 	defer row.Close()
 
-	var (
-		id int
-		postId int
-		userId int
-		state bool
-	)
+	var count int
 
-	row.Next()
-	if err = row.Scan(&id, &postId, &userId, &state);
-		err != nil {
-		log.Printf("row.Scan()でerror: %v with GetSelectPUId\n", err)
-		b = true
-		return
+	for row.Next() {
+		if err := row.Scan(&count); err != nil {
+			log.Fatal(err)
+		}
 	}
-	b = false
-
+	log.Printf("count: %d\n", count)
+	if count == 0 {
+		b = true
+	} else {
+		b = false
+	}
 	return
 }
 
@@ -119,6 +162,18 @@ func (repo *GoodRepository) Store(ctx context.Context, good model.PostGoodReques
 	return
 }
 
+func (repo *GoodRepository) Change(ctx context.Context, good model.PutGoodRequest) (state bool, err error) {
+	_, err = repo.ExecContext(ctx,
+		"update pbl_app1.good set state = ? where post_id = ? and user_id = ?",
+		good.State, good.PostId, good.UserId)
+	if err != nil {
+		return
+	}
+	log.Printf("post_id: %d, user_id: %d, state: %t\n", good.PostId, good.UserId, good.State)
+	state = good.State
+	return
+}
+
 func (repo *GoodRepository) CountIncrease(ctx context.Context, pid int) (identifier int, nGood int, err error) {
 	_, err = repo.ExecContext(ctx, "update pbl_app1.post set good = good + 1 where id = ?", pid)
 	if err != nil {
@@ -126,7 +181,7 @@ func (repo *GoodRepository) CountIncrease(ctx context.Context, pid int) (identif
 	}
 	row, err := repo.QueryContext(ctx, "select id, good from post where id = ?", pid)
 	if err != nil {
-		log.Printf("Could not scan result with GetSelect: %v", err)
+		log.Printf("Could not scan result with CountIncrease: %v", err)
 		return
 	}
 	defer row.Close()
@@ -140,6 +195,35 @@ func (repo *GoodRepository) CountIncrease(ctx context.Context, pid int) (identif
 	if err = row.Scan(&id, &good);
 		err != nil {
 		log.Printf("row.Scan()でerror: %v with CountIncrease\n", err)
+		return
+	} else {
+		identifier = id
+		nGood = good
+	}
+	return
+}
+
+func (repo *GoodRepository) CountDecrease(ctx context.Context, pid int) (identifier int, nGood int, err error) {
+	_, err = repo.ExecContext(ctx, "update pbl_app1.post set good = good - 1 where id = ?", pid)
+	if err != nil {
+		return
+	}
+	row, err := repo.QueryContext(ctx, "select id, good from post where id = ?", pid)
+	if err != nil {
+		log.Printf("Could not scan result with CountDecrease: %v", err)
+		return
+	}
+	defer row.Close()
+
+	var (
+		id int
+		good int
+	)
+
+	row.Next()
+	if err = row.Scan(&id, &good);
+		err != nil {
+		log.Printf("row.Scan()でerror: %v with CountDecrease\n", err)
 		return
 	} else {
 		identifier = id
