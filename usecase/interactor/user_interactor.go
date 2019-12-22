@@ -27,6 +27,16 @@ func (i *UsersInteractor) UsersAll(ctx context.Context) (users model.Users, err 
 
 // uRegistryはuser Registryの略
 func (i *UsersInteractor) Add(ctx context.Context, uRequest model.PostUserRequest) (uResponse model.PostUserResponse, err error) {
+	//var check bool
+	check, err := i.UsersRepository.CheckUuid(ctx, uRequest.Uuid)
+	if err != nil{
+		log.Printf("err: %v\n", err)
+		//err = fmt.Errorf("%v", err)
+	}
+	if !check {
+		err = fmt.Errorf("uuid is not unique. err: %v", err)
+		return uResponse, err
+	}
 	uRequest.Password, err = PasswordHash(uRequest.Password)
 	if err != nil {
 		log.Printf("err: %v\n", err)
@@ -47,48 +57,55 @@ func (i *UsersInteractor) Add(ctx context.Context, uRequest model.PostUserReques
 	return
 }
 
-func (i *UsersInteractor) Update(ctx context.Context, uRequest model.PutUserRequest) (uResponse model.PutUserResponse, err error) {
-	user, err := i.UsersRepository.GetSelect(ctx, uRequest.Id)
+func (i *UsersInteractor) Update(ctx context.Context, request model.PutUserRequest) (uResponse model.PutUserResponse, err error) {
+	user, err := i.UsersRepository.GetSelect(ctx, request.Id)
 	if err != nil {
 		log.Printf("err: %v\n", err)
 	}
-	if err = PasswordVerify(user.Password, uRequest.Password);
-	err != nil {
-		uRequest.Password, err = PasswordHash(uRequest.Password)
+	if err = PasswordVerify(user.Password, request.Password); err != nil {
+		request.Password, err = PasswordHash(request.Password)
 		if err != nil {
 			log.Printf("err: %v\n", err)
 		}
 	} else {
 		log.Printf("passwordは変更しません\n")
-		uRequest.Password = user.Password
+		request.Password = user.Password
 	}
 	tz := "T00:00:00Z"
-	birthday := fmt.Sprintf("%s%s", uRequest.BirthDay, tz)
-	if user.Name==uRequest.Name && user.Password==uRequest.Password && user.Gender==uRequest.Gender && user.BirthDay==birthday {
+	birthday := fmt.Sprintf("%s%s", request.BirthDay, tz)
+	if user.Uuid==request.Uuid && user.Name==request.Name && user.Password==request.Password && user.Gender==request.Gender && user.BirthDay==birthday {
 		log.Printf("以前のデータから更新された情報はありません\n")
 	} else {
-		id, err := i.UsersRepository.Change(ctx, uRequest)
+		id, err := i.UsersRepository.Change(ctx, request)
 		if err != nil {
 			log.Printf("err: %v\n", err)
 		}
 		log.Printf("データが更新されました\n")
-		if uRequest.Id != id {
+		if request.Id != id {
 			uRes, err := i.UsersRepository.GetSelect(ctx, id)
 			if err != nil {
 				log.Printf("err: %v\n", err)
 			}
 			uResponse = model.PutUserResponse(uRes)
-			err = fmt.Errorf("指定されたid: %dではなく、id: %dのデータを更新しました", uRequest.Id, id)
+			err = fmt.Errorf("指定されたid: %dではなく、id: %dのデータを更新しました", request.Id, id)
 			return uResponse, err
 		}
 	}
-	uRes, err := i.UsersRepository.GetSelect(ctx, uRequest.Id)
+	uRes, err := i.UsersRepository.GetSelect(ctx, request.Id)
 	uResponse = model.PutUserResponse(uRes)
 
 	return
 }
 
 func (i *UsersInteractor) SignUp(ctx context.Context, suReq model.SignUpRequest) (suRes model.SignUpResponse, err error) {
+	check, err := i.UsersRepository.CheckUuid(ctx, suReq.Uuid)
+	if err != nil{
+		err = fmt.Errorf("%v", err)
+	}
+	if !check {
+		err = fmt.Errorf("uuid is not unique. err: %v", err)
+		return
+	}
 	suReq.Password, err = PasswordHash(suReq.Password)
 	id, err := i.UsersRepository.Store(ctx, model.PostUserRequest(suReq))
 	if err != nil {
@@ -118,7 +135,8 @@ func PasswordHash(pw string) (string, error) {
 }
 
 func (i *UsersInteractor) SignIn(ctx context.Context, request model.SignInRequest) (response model.SignInResponse, err error) {
-	pass, err := i.UsersRepository.GetPass(ctx, request.Id)
+	identifier, err := i.UsersRepository.GetSelectUuid(ctx, request.Uuid)
+	pass, err := i.UsersRepository.GetPass(ctx, identifier)
 	if err != nil {
 		//log.Printf("err: %v\n", err)
 		return
@@ -140,14 +158,3 @@ func (i *UsersInteractor) SignIn(ctx context.Context, request model.SignInReques
 func PasswordVerify(hash, pw string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(pw))
 }
-
-//func (i *UsersInteractor) SignOut(ctx context.Context, request model.SignOutRequest) (response model.SignOutResponse, err error) {
-//	pass, err := i.UsersRepository.GetPass(ctx, request.Id)
-//
-//	err = PasswordVerify(pass, request.Password)
-//	if err != nil {
-//		return false, err
-//	}
-//
-//	return true, nil
-//}

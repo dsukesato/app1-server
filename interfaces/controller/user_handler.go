@@ -75,7 +75,6 @@ func (c *UsersController) UsersIdHandler(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-// SignUpHandlerと同じ機能
 func (c *UsersController) UsersSendHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/Lookin/users/" {
 		http.NotFound(w, r)
@@ -112,6 +111,7 @@ func (c *UsersController) UsersSendHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	request := model.PostUserRequest{}
+	request.Uuid = jsonBody.Uuid
 	request.Name = jsonBody.Name
 	request.Password = jsonBody.Password
 	request.Gender = jsonBody.Gender
@@ -120,7 +120,8 @@ func (c *UsersController) UsersSendHandler(w http.ResponseWriter, r *http.Reques
 	user, err := c.Interactor.Add(ctx, request)
 
 	if err != nil {
-		log.Printf("err: %v\n", err)
+		log.Printf("err: %v with sendH\n", err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -170,6 +171,7 @@ func (c *UsersController) UsersUpdateHandler(w http.ResponseWriter, r *http.Requ
 
 	request := model.PutUserRequest{}
 	request.Id = jsonBody.Id
+	request.Uuid = jsonBody.Uuid
 	request.Name = jsonBody.Name
 	request.Password = jsonBody.Password
 	request.Gender = jsonBody.Gender
@@ -227,6 +229,7 @@ func (c *UsersController) SignUpHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	request := model.SignUpRequest{}
+	request.Uuid = jsonBody.Uuid
 	request.Name = jsonBody.Name
 	request.Password = jsonBody.Password
 	request.Gender = jsonBody.Gender
@@ -235,7 +238,8 @@ func (c *UsersController) SignUpHandler(w http.ResponseWriter, r *http.Request) 
 	signUp, err := c.Interactor.SignUp(ctx, request)
 
 	if err != nil {
-		log.Printf("err: %v\n", err)
+		log.Printf("err: %v with suH\n", err)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -284,7 +288,7 @@ func (c *UsersController) SignInHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	request := model.SignInRequest{}
-	request.Id = jsonBody.Id
+	request.Uuid = jsonBody.Uuid
 	request.Password = jsonBody.Password
 
 	// siBoolはsignInが成功しているかを判定するbool値
@@ -300,63 +304,3 @@ func (c *UsersController) SignInHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 }
-
-//func (c *UsersController) SignOutHandler(w http.ResponseWriter, r *http.Request) {
-//	if r.URL.Path != "/Lookin/sign_out/" {
-//		http.NotFound(w, r)
-//		return
-//	}
-//	ctx := r.Context()
-//
-//	if r.Header.Get("Content-Type") != "application/json" {
-//		w.WriteHeader(http.StatusBadRequest)
-//		return
-//	}
-//
-//	//To allocate slice for request body
-//	length, err := strconv.Atoi(r.Header.Get("Content-Length"))
-//	if err != nil {
-//		w.WriteHeader(http.StatusInternalServerError)
-//		return
-//	}
-//
-//	//Read body data to parse json
-//	body := make([]byte, length)
-//	length, err = r.Body.Read(body)
-//	if err != nil && err != io.EOF {
-//		w.WriteHeader(http.StatusInternalServerError)
-//		return
-//	}
-//
-//	//parse json
-//	var jsonBody = new(model.SignInRequest)
-//	err = json.Unmarshal(body[:length], &jsonBody) // json -> Go Object
-//	if err != nil {
-//		w.WriteHeader(http.StatusInternalServerError)
-//		return
-//	}
-//
-//	request := model.SignOutRequest{}
-//	request.Id = jsonBody.Id
-//
-//	// siBoolはsignInが成功しているかを判定するbool値
-//	siBool, err := c.Interactor.SignOut(ctx, request)
-//
-//	if err != nil {
-//		log.Printf("err: %v\n", err)
-//	}
-//
-//	response := model.SignInResponse{}
-//	response.SignInBool = siBool
-//	if siBool {
-//		response.Message = "パスワード認証に成功しました"
-//	} else {
-//		response.Message = "パスワード認証に失敗しました"
-//	}
-//
-//	w.Header().Set("Content-Type", "application/json")
-//	if err = json.NewEncoder(w).Encode(response); err != nil {
-//		http.Error(w, "Internal Server Error", 500)
-//		return
-//	}
-//}

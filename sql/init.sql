@@ -4,11 +4,11 @@ use pbl_app1;
 
 create table if not exists pbl_app1.user (
     id         int          not null auto_increment primary key,
+    uuid       varchar(50)  not null unique,
     name       varchar(50)  not null,
     password   varchar(100) not null,
     gender     varchar(10)  not null,
     birthday   date         not null,
-    state      boolean      not null default false,
     point      int          not null default 0,
     created_at datetime     not null,
     updated_at datetime,
@@ -17,6 +17,7 @@ create table if not exists pbl_app1.user (
 
 create table if not exists pbl_app1.restaurant (
     id             int          not null auto_increment primary key,
+    uuid           varchar(50)  not null unique,
     name           varchar(50)  not null,
     business_hours varchar(50)  not null,
     image          varchar(100) not null,
@@ -30,6 +31,7 @@ create table if not exists pbl_app1.recognize (
     restaurant_id int       not null,
     user_id       int       not null,
     created_at    datetime  not null,
+    updated_at    datetime,
     deleted_at    datetime,
     constraint fk_recognize_restaurant_id
         foreign key (restaurant_id)
@@ -59,8 +61,8 @@ create table if not exists pbl_app1.point (
 
 create table if not exists pbl_app1.post (
     id            int           not null auto_increment primary key,
-    user_id       int           not null,
     restaurant_id int           not null,
+    user_id       int           not null,
     content       varchar(100)  not null,
     good          int           not null default 0,
     genre         varchar(50)   not null,

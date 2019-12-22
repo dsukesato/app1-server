@@ -6,6 +6,7 @@ import (
 
 type User struct {
 	Id        int          `json:"id"`
+	Uuid      string       `json:"uuid"`
 	Name      string       `json:"name"`
 	Password  string       `json:"password"`
 	Gender    string       `json:"gender"`
@@ -20,6 +21,7 @@ type User struct {
 type Users []User
 
 type PostUserRequest struct {
+	Uuid     string `json:"uuid"`
 	Name     string `json:"name"`
 	Password string `json:"password"`
 	Gender   string `json:"gender"`
@@ -28,6 +30,7 @@ type PostUserRequest struct {
 
 type PostUserResponse struct {
 	Id        int          `json:"id"`
+	Uuid      string       `json:"uuid"`
 	Name      string       `json:"name"`
 	Password  string       `json:"password"`
 	Gender    string       `json:"gender"`
@@ -41,6 +44,7 @@ type PostUserResponse struct {
 
 type PutUserRequest struct {
 	Id       int    `json:"id"`
+	Uuid     string `json:"uuid"`
 	Name     string `json:"name"`
 	Password string `json:"password"`
 	Gender   string `json:"gender"`
@@ -49,6 +53,7 @@ type PutUserRequest struct {
 
 type PutUserResponse struct {
 	Id        int          `json:"id"`
+	Uuid      string       `json:"uuid"`
 	Name      string       `json:"name"`
 	Password  string       `json:"password"`
 	Gender    string       `json:"gender"`
@@ -61,6 +66,7 @@ type PutUserResponse struct {
 }
 
 type SignUpRequest struct {
+	Uuid     string `json:"uuid"`
 	Name     string `json:"name"`
 	Password string `json:"password"`
 	Gender   string `json:"gender"`
@@ -73,7 +79,7 @@ type SignUpResponse struct {
 }
 
 type SignInRequest struct {
-	Id       int    `json:"id"`
+	Uuid     string `json:"uuid"`
 	Password string `json:"password"`
 }
 
@@ -82,11 +88,11 @@ type SignInResponse struct {
 	Message    string `json:"message"`
 }
 
-type SignOutRequest struct {
-	Id int `json:"id"`
-}
-
-type SignOutResponse struct {
-	SignOutBool bool   `json:"sign_out_bool"`
-	Message    string `json:"message"`
-}
+//type SignOutRequest struct {
+//	Uuid string `json:"uuid"`
+//}
+//
+//type SignOutResponse struct {
+//	SignOutBool bool  `json:"sign_out_bool"`
+//	Message    string `json:"message"`
+//}
