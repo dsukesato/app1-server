@@ -128,11 +128,17 @@ func (c *RestaurantsController) RestaurantsSendHandler(w http.ResponseWriter, r 
 	}
 
 	request := model.RestaurantRequest{}
+	request.Uuid = jsonBody.Uuid
 	request.Name = jsonBody.Name
 	request.BusinessHours = jsonBody.BusinessHours
 	request.Image = fmt.Sprintf("https://storage.googleapis.com/%s/%s", bucket, obj)
 
 	posts, err := c.Interactor.Add(ctx, request)
+	if err != nil {
+		log.Printf("%v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	w.WriteHeader(http.StatusCreated)
 
@@ -168,6 +174,7 @@ func (c *RestaurantsController) RestaurantsUpdateHandler(w http.ResponseWriter, 
 
 	request := model.PutRestaurantRequest{}
 	request.Id = jsonBody.Id
+	request.Uuid = jsonBody.Uuid
 	request.Name = jsonBody.Name
 	request.BusinessHours = jsonBody.BusinessHours
 

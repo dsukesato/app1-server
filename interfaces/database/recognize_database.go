@@ -24,11 +24,12 @@ func (repo *RecognizeRepository) GetSelect(ctx context.Context, identifier int) 
 		restaurantId int
 		userId        int
 		createdAt    sql.NullTime
+		updatedAt    sql.NullTime
 		deletedAt    sql.NullTime
 	)
 
 	row.Next()
-	if err = row.Scan(&id, &restaurantId, &userId, &createdAt, &deletedAt);
+	if err = row.Scan(&id, &restaurantId, &userId, &createdAt, &updatedAt, &deletedAt);
 		err != nil {
 		log.Printf("row.Scan()でerror: %v\n", err)
 		return
@@ -39,6 +40,7 @@ func (repo *RecognizeRepository) GetSelect(ctx context.Context, identifier int) 
 		RestaurantId:  restaurantId,
 		UserId:        userId,
 		CreatedAt:     createdAt,
+		UpdatedAt:     updatedAt,
 		DeletedAt:     deletedAt,
 	}
 
@@ -103,13 +105,14 @@ func (repo *RecognizeRepository) GetAll(ctx context.Context) (rec model.Rec, err
 
 	for rows.Next() {
 		var (
-			id            int
-			restaurantId  int
-			userId        int
-			createdAt     sql.NullTime
-			deletedAt     sql.NullTime
+			id           int
+			restaurantId int
+			userId       int
+			createdAt    sql.NullTime
+			updatedAt    sql.NullTime
+			deletedAt    sql.NullTime
 		)
-		if err := rows.Scan(&id, &restaurantId, &userId, &createdAt, &deletedAt);
+		if err := rows.Scan(&id, &restaurantId, &userId, &createdAt, &updatedAt, &deletedAt);
 			err != nil {
 			log.Printf("row.Scan()でerror: %v\n", err)
 			continue
@@ -119,6 +122,7 @@ func (repo *RecognizeRepository) GetAll(ctx context.Context) (rec model.Rec, err
 			RestaurantId:  restaurantId,
 			UserId:        userId,
 			CreatedAt:     createdAt,
+			UpdatedAt:     updatedAt,
 			DeletedAt:     deletedAt,
 		}
 		rec = append(rec, recognize)

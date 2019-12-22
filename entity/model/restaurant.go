@@ -6,6 +6,7 @@ import (
 
 type Restaurant struct {
 	Id            int          `json:"id"`
+	Uuid          string       `json:"uuid"`
 	Name          string       `json:"name"`
 	BusinessHours string       `json:"business_hours"`
 	Image         string       `json:"image"`
@@ -17,18 +18,21 @@ type Restaurant struct {
 type Restaurants []Restaurant
 
 type RestaurantRequest struct {
+	Uuid          string `json:"uuid"`
 	Name          string `json:"name"`
 	BusinessHours string `json:"business_hours"`
 	Image         string `json:"image"`
 }
 
 type PostRestaurantRequest struct {
+	Uuid          string `json:"uuid"`
 	Name          string `json:"name"`
 	BusinessHours string `json:"business_hours"`
 }
 
 type PostRestaurantResponse struct {
 	Id            int    `json:"id"`
+	Uuid          string `json:"uuid"`
 	Name          string `json:"name"`
 	BusinessHours string `json:"business_hours"`
 	Image         string `json:"image"`
@@ -36,6 +40,7 @@ type PostRestaurantResponse struct {
 
 type PutRestaurantRequest struct {
 	Id            int    `json:"id"`
+	Uuid          string `json:"uuid"`
 	Name          string `json:"name"`
 	BusinessHours string `json:"business_hours"`
 	Image         string `json:"image"`
@@ -43,6 +48,7 @@ type PutRestaurantRequest struct {
 
 type PutRestaurantResponse struct {
 	Id            int          `json:"id"`
+	Uuid          string       `json:"uuid"`
 	Name          string       `json:"name"`
 	BusinessHours string       `json:"business_hours"`
 	Image         string       `json:"image"`

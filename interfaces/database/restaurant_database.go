@@ -35,6 +35,7 @@ func (repo *RestaurantsRepository) GetSelect(ctx context.Context, identifier int
 
 	var (
 		id            int
+		uuid          string
 		name          string
 		businessHours string
 		image         string
@@ -44,7 +45,7 @@ func (repo *RestaurantsRepository) GetSelect(ctx context.Context, identifier int
 	)
 
 	row.Next()
-	if err = row.Scan(&id, &name, &businessHours, &image, &createdAt, &updatedAt, &deletedAt);
+	if err = row.Scan(&id, &uuid, &name, &businessHours, &image, &createdAt, &updatedAt, &deletedAt);
 		err != nil {
 		log.Printf("row.Scan()でerror: %v\n", err)
 		return
@@ -52,6 +53,7 @@ func (repo *RestaurantsRepository) GetSelect(ctx context.Context, identifier int
 	// sql.NullTimeからtime.Timeに変換するといいかも
 	restaurant = model.Restaurant {
 		Id:            id,
+		Uuid:          uuid,
 		Name:          name,
 		BusinessHours: businessHours,
 		Image:         image,
@@ -62,6 +64,45 @@ func (repo *RestaurantsRepository) GetSelect(ctx context.Context, identifier int
 
 	return
 }
+
+func (repo *RestaurantsRepository) CheckUuid(ctx context.Context, uuid string) (b bool, err error) {
+	row, err := repo.QueryContext(ctx, "select count(*) from restaurant where uuid = ?", uuid)
+	if err != nil {
+		log.Printf("Could not scan result with CheckUuid: %v", err)
+		return
+	}
+	defer row.Close()
+
+	var count int
+	row.Next()
+	if err = row.Scan(&count); err != nil {
+		log.Printf("row.Scan()でerror: %v\n", err)
+		return
+	}
+	log.Printf("count: %d\n", count)
+	if count == 0 {
+		b = true
+	} else {
+		b = false
+	}
+	return
+}
+
+//func (repo *RestaurantsRepository) GetSelectUuid(ctx context.Context, uuid string) (id int, err error) {
+//	row, err := repo.QueryContext(ctx, "select id from restaurant where uuid = ?", uuid)
+//	if err != nil {
+//		log.Printf("Could not scan result with GetSelectUuid: %v", err)
+//		return
+//	}
+//	defer row.Close()
+//
+//	row.Next()
+//	if err = row.Scan(&id); err != nil {
+//		log.Printf("row.Scan()でerror: %v\n", err)
+//		return
+//	}
+//	return
+//}
 
 func (repo *RestaurantsRepository) GetAll(ctx context.Context) (restaurants model.Restaurants, err error){
 	rows, err := repo.QueryContext(ctx, "select * from restaurant")
@@ -74,6 +115,7 @@ func (repo *RestaurantsRepository) GetAll(ctx context.Context) (restaurants mode
 	for rows.Next() {
 		var (
 			id            int
+			uuid          string
 			name          string
 			businessHours string
 			image         string
@@ -81,13 +123,14 @@ func (repo *RestaurantsRepository) GetAll(ctx context.Context) (restaurants mode
 			updatedAt     sql.NullTime
 			deletedAt     sql.NullTime
 		)
-		if err := rows.Scan(&id, &name, &businessHours, &image, &createdAt, &updatedAt, &deletedAt);
+		if err := rows.Scan(&id, &uuid, &name, &businessHours, &image, &createdAt, &updatedAt, &deletedAt);
 			err != nil {
 			log.Printf("row.Scan()でerror: %v\n", err)
 			continue
 		}
 		restaurant := model.Restaurant {
 			Id:            id,
+			Uuid:          uuid,
 			Name:          name,
 			BusinessHours: businessHours,
 			Image:         image,
@@ -102,8 +145,8 @@ func (repo *RestaurantsRepository) GetAll(ctx context.Context) (restaurants mode
 
 func (repo *RestaurantsRepository) Store(ctx context.Context, rRegistry model.RestaurantRequest) (id int, err error) {
 	result, err := repo.ExecContext(ctx,
-		"insert into pbl_app1.restaurant (name, business_hours, image, created_at) values (?, ?, ?, now())",
-		rRegistry.Name, rRegistry.BusinessHours, rRegistry.Image)
+		"insert into pbl_app1.restaurant (uuid, name, business_hours, image, created_at) values (?, ?, ?, ?, now())",
+		rRegistry.Uuid ,rRegistry.Name, rRegistry.BusinessHours, rRegistry.Image)
 	if err != nil {
 		return
 	}
@@ -122,13 +165,13 @@ func (repo *RestaurantsRepository) Store(ctx context.Context, rRegistry model.Re
 
 func (repo *RestaurantsRepository) Change(ctx context.Context, request model.PutRestaurantRequest) (id int, err error) {
 	_, err = repo.ExecContext(ctx,
-		"update pbl_app1.restaurant set name=?, business_hours=?, image=?, updated_at=now() where id=?",
-		request.Name, request.BusinessHours, request.Image, request.Id)
+		"update pbl_app1.restaurant set uuid=?, name=?, business_hours=?, image=?, updated_at=now() where id=?",
+		request.Uuid ,request.Name, request.BusinessHours, request.Image, request.Id)
 	if err != nil {
 		return
 	}
-	log.Printf("name: %s, business_hours: %s, image: %s\n",
-		request.Name, request.BusinessHours, request.Image)
+	log.Printf("uuid: %s, name: %s, business_hours: %s, image: %s\n",
+		request.Uuid ,request.Name, request.BusinessHours, request.Image)
 
 	row, err := repo.QueryContext(ctx, "select id from restaurant where id = ?", request.Id)
 	if err != nil {
